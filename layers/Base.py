@@ -10,7 +10,7 @@ class BaseLayer(object):
     """
     def __init__(self, args):
         self.name = args["name"]
-        self.inNodes = [args["input"]]
+        self.inNodes = [inNode for inNode in args["input"]]
         for inNode in self.inNodes:
             inNode.outNodes.append(self)
         self.outNodes = []

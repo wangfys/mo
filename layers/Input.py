@@ -8,16 +8,9 @@ class Input(BaseLayer):
     Here are the explanation of args:
         name: the name of this layer, should be unique
     """
-    def __init__(self, name, shape):
-        self.name = name
-        self.status = layerStatus.uninitialized
-        self.inNodes = []
-        self.outNodes = []
-        self.params = []
-        self.outShape = np.array(shape)
-    
-    def init(self, jsonParam=None):
-        self.status = layerStatus.ready
+    def __init__(self, **args):
+        BaseLayer.__init__(self, args)
+        self.outShape = np.array(args["shape"])
     
     def forward(self, feedInput):
         try:
