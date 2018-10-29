@@ -25,7 +25,8 @@ class Dense(BaseLayer):
         BaseLayer.init(self, jsonParam)
     
     def forward(self, feedInput):
-        BaseLayer.forward(self, feedInput)
+        if BaseLayer.forward(self, feedInput):
+            return None
         inputTensor = np.array(self.inNodes[0].output)
         outputTensor = np.zeros(self.outShape)
         for i in range(self.inShapes[0][0]):

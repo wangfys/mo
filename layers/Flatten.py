@@ -15,7 +15,8 @@ class Flatten(BaseLayer):
             self.outShape[1] *= d
     
     def forward(self, feedInput):
-        BaseLayer.forward(self, feedInput)
+        if BaseLayer.forward(self, feedInput):
+            return None
         inputTensor = np.array(self.inNodes[0].output)
         self.output = inputTensor.reshape(self.outShape)
     

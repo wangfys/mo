@@ -10,7 +10,8 @@ class Sigmoid(BaseLayer):
         self.outShape = np.array(self.inShapes[0])
 
     def forward(self, feedInput):
-        BaseLayer.forward(self, feedInput)
+        if BaseLayer.forward(self, feedInput):
+            return None
         outputTensor = np.array(self.inNodes[0].output)
         self.output = 1 / (1 + np.exp(outputTensor))
     

@@ -31,6 +31,8 @@ class BaseLayer(object):
                 inNode.init(jsonParam)
 
     def forward(self, feedInput):
+        if self.status == layerStatus.finished:
+            return True
         for inNode in self.inNodes:
             if inNode.status != layerStatus.finished:
                 inNode.forward(feedInput)

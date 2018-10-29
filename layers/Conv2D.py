@@ -26,7 +26,8 @@ class Conv2D(BaseLayer):
         BaseLayer.init(self, jsonParam)
     
     def forward(self, feedInput):
-        BaseLayer.forward(self, feedInput)
+        if BaseLayer.forward(self, feedInput):
+            return None
         inputTensor = np.array(self.inNodes[0].output)
         outputTensor = np.zeros(self.outShape)
         for n in range(self.outShape[0]):
