@@ -51,7 +51,6 @@ class BaseLayer(object):
     def backward(self, applyGradient):
         self.backwardStatus = backwardStatus.computed
         for inNode in self.inNodes:
-            print(inNode.name)
             inNode.backward(applyGradient)
     
     def clearForward(self):
