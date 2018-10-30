@@ -20,3 +20,6 @@ class BaseOptimizer(object):
     def minimize(self):
         self.target.clearBackward()
         self.target.backward(np.frompyfunc(self.applyFunc, 2, 1))
+    
+    def getAllParams(self, result=None, returnJSON=True):
+        return None

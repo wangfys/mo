@@ -15,7 +15,7 @@ class BaseLayer(object):
         self.outNodes = []
         self.params = []
         self.inputGradients = {}
-        self.paramGradients = []
+        self.paramGradients = {}
         self.forwardStatus = forwardStatus.uninitialized
         self.backwardStatus = backwardStatus.unforwarded
         self.inShapes = [inNode.outShape for inNode in self.inNodes]
@@ -41,7 +41,6 @@ class BaseLayer(object):
                 inNode.forward(feedInput)
             inNode.forwardStatus = forwardStatus.computed
             inNode.backwardStatus = backwardStatus.forwarded
-        print(self.name, self.inShapes)
     
     def preBackward(self):
         for outNode in self.outNodes:

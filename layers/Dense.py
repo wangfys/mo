@@ -30,10 +30,32 @@ class Dense(BaseLayer):
             return None
         inputTensor = np.array(self.inNodes[0].output)
         outputTensor = np.zeros(self.outShape)
-        print(self.outShape, self.K.shape, self.b.shape)
         for i in range(self.inShapes[0][0]):
             outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
         self.output = outputTensor.reshape(self.outShape)
     
     def backward(self, applyGradient):
-        pass
+        if BaseLayer.preBackward(self):
+            return None
+        columnNumber = self.inSizes[0]
+        thisGradient = np.zeros((self.outSize, self.inSizes[0]))
+        thisKGradient = np.zeros((self.outSize, self.K.size))
+        thisBGradient = np.zeros((self.outSize, self.b.size))
+        for i in range(self.inShapes[0][0]):
+            thisGradient[i*self.K.shape[0]:(i+1)*self.K.shape[0], i*self.K.shape[1]:(i+1)*self.K.shape[1]] = self.K
+            thisBGradient[i*self.outShape[1]:(i+1)*self.outShape[1]] = np.diag(np.ones((self.b.size)))
+            for j in range(self.K.shape[0]):
+                thisKGradient[i*self.outShape[1]+j, j*self.K.shape[1]:(j+1)*self.K.shape[1]] = self.inNodes[0].output[j*self.K.shape[1]:(j+1)*self.K.shape[1]]
+        inputGradient = np.zeros((1, columnNumber))
+        KGradient = np.zeros((1, self.K.size))
+        bGradient = np.zeros((1, self.b.size))
+        for outNode in self.outNodes:
+            inputGradient = inputGradient + np.dot(outNode.inputGradients[self.name], thisGradient)
+            KGradient = KGradient + np.dot(outNode.inputGradients[self.name], thisKGradient)
+            bGradient = bGradient + np.dot(outNode.inputGradients[self.name], thisBGradient)
+        self.inputGradients[self.inNodes[0].name] = inputGradient
+        self.K.ravel()[:] = applyGradient(self.K.flatten(), KGradient.flatten())
+        self.b.ravel()[:] = applyGradient(self.b.flatten(), bGradient.flatten())
+        self.paramGradients["K"] = KGradient
+        self.paramGradients["b"] = bGradient
+        BaseLayer.backward(self, applyGradient)

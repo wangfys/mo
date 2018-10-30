@@ -17,4 +17,13 @@ class ReLU(BaseLayer):
         self.output = np.maximum(outputTensor, 0)
     
     def backward(self, applyGradient):
-        pass
+        if BaseLayer.preBackward(self):
+            return None
+        columnNumber = self.inSizes[0]
+        inputVector = np.where(self.output>0, 1, 0).flatten()
+        thisGradient = np.diag(inputVector)
+        inputGradient = np.zeros((1, columnNumber))
+        for outNode in self.outNodes:
+            inputGradient = inputGradient + np.dot(outNode.inputGradients[self.name], thisGradient)
+        self.inputGradients[self.inNodes[0].name] = inputGradient
+        BaseLayer.backward(self, applyGradient)
