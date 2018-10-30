@@ -37,5 +37,5 @@ class Conv2D(BaseLayer):
                         outputTensor[n, c, h, w] = np.sum(inputTensor[n, :, h:h+self.kernelSize[1], w:w+self.kernelSize[2]] * self.K[c, :]) + self.b[c]
         self.output = outputTensor
     
-    def backward(self):
+    def backward(self, applyGradient):
         pass

@@ -13,10 +13,10 @@ class Dense(BaseLayer):
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args)
-        self.outShape = np.array((self.inShapes[0][0], args["unitNum"]))
         self.K_init = args["K_init"] if "K_init" in args else np.zeros
         self.b_init = args["b_init"] if "b_init" in args else np.zeros
         self.params = ["K", "b"]
+        self.outShape = np.array((self.inShapes[0][0], args["unitNum"]))
 
     def init(self, jsonParam=None):
         if jsonParam == None:
@@ -33,5 +33,5 @@ class Dense(BaseLayer):
             outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
         self.output = outputTensor.reshape(self.outShape)
     
-    def backward(self):
+    def backward(self, applyGradient):
         pass

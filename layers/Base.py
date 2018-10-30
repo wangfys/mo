@@ -2,7 +2,8 @@ import numpy as np
 import json
 from enum import Enum
 
-layerStatus = Enum("layerStatus", ("uninitialized", "ready", "finished"))
+forwardStatus = Enum("forwardStatus", ("uninitialized", "initialized", "computed"))
+backwardStatus = Enum("backwardStatus", ("unforwarded", "forwarded", "computed"))
 
 class BaseLayer(object):
     """
@@ -15,7 +16,10 @@ class BaseLayer(object):
             inNode.outNodes.append(self)
         self.outNodes = []
         self.params = []
-        self.status = layerStatus.uninitialized
+        self.inputGradients = []
+        self.paramGradients = []
+        self.forwardStatus = forwardStatus.uninitialized
+        self.backwardStatus = backwardStatus.unforwarded
         self.inShapes = [inNode.outShape for inNode in self.inNodes]
     
     def init(self, jsonParam=None):
@@ -25,35 +29,61 @@ class BaseLayer(object):
                     self.__dict__[param] = np.array(jsonParam[self.name][param])
                 except:
                     raise Exception("can not initialize parameter '%s' of '%s'" % (param, self.name))
-        self.status = layerStatus.ready
+        self.forwardStatus = forwardStatus.initialized
         for inNode in self.inNodes:
-            if inNode.status != layerStatus.ready:
+            if inNode.forwardStatus != forwardStatus.initialized:
                 inNode.init(jsonParam)
 
     def forward(self, feedInput):
-        if self.status == layerStatus.finished:
+        if self.forwardStatus == forwardStatus.computed:
             return True
         for inNode in self.inNodes:
-            if inNode.status != layerStatus.finished:
+            if inNode.forwardStatus != forwardStatus.computed:
                 inNode.forward(feedInput)
-            inNode.status = layerStatus.finished
+            inNode.forwardStatus = forwardStatus.computed
+            inNode.backwardStatus = backwardStatus.forwarded
     
-    def backward(self):
-        pass
+    def preBackward(self):
+        for outNode in self.outNodes:
+            if outNode.forwardStatus == forwardStatus.computed and outNode.backwardStatus != backwardStatus.computed:
+                return True
+    
+    def backward(self, applyGradient):
+        self.backwardStatus = backwardStatus.computed
+        for inNode in self.inNodes:
+            print(inNode.name)
+            inNode.backward(applyGradient)
     
     def clearForward(self):
-        if self.status == layerStatus.uninitialized:
-            raise Exception("the parameters of '%s' is uninitialized" % self.name)
-        elif self.status == layerStatus.finished:
-            self.status = layerStatus.ready
         for inNode in self.inNodes:
-            if inNode.status == layerStatus.finished:
+            if inNode.forwardStatus == forwardStatus.computed:
                 inNode.clearForward()
+        if self.forwardStatus == forwardStatus.uninitialized:
+            raise Exception("the parameters of '%s' is uninitialized" % self.name)
+        elif self.forwardStatus == forwardStatus.computed:
+            self.forwardStatus = forwardStatus.initialized
+            self.backwardStatus = backwardStatus.unforwarded
+        for outNode in self.outNodes:
+            if outNode.forwardStatus == forwardStatus.computed:
+                outNode.clearForward()
+
+    def clearBackward(self):
+        for inNode in self.inNodes:
+            if inNode.backwardStatus == backwardStatus.computed:
+                inNode.clearBackward()
+        if self.backwardStatus == backwardStatus.unforwarded:
+            raise Exception("the forward computing of '%s' is unprocessed" % self.name)
+        elif self.backwardStatus == backwardStatus.computed:
+            self.backwardStatus = backwardStatus.forwarded
+        for outNode in self.outNodes:
+            if outNode.backwardStatus == backwardStatus.computed:
+                outNode.clearBackward()
 
     def execute(self, feedInput):
         self.clearForward()
         self.forward(feedInput)
-        self.status = layerStatus.finished
+        self.forwardStatus = forwardStatus.computed
+        self.backwardStatus = backwardStatus.forwarded
     
     def getAllParams(self, result=None, returnJSON=True):
         if returnJSON:

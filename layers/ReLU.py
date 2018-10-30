@@ -15,5 +15,5 @@ class ReLU(BaseLayer):
         outputTensor = np.array(self.inNodes[0].output)
         self.output = np.maximum(outputTensor, 0)
     
-    def backward(self):
+    def backward(self, applyGradient):
         pass

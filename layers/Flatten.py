@@ -20,5 +20,5 @@ class Flatten(BaseLayer):
         inputTensor = np.array(self.inNodes[0].output)
         self.output = inputTensor.reshape(self.outShape)
     
-    def backward(self):
+    def backward(self, applyGradient):
         pass

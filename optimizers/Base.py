@@ -1,3 +1,5 @@
+import numpy as np
+
 class BaseOptimizer(object):
     """
     This is the base class of all optimizers.
@@ -11,5 +13,5 @@ class BaseOptimizer(object):
         pass
     
     def minimize(self):
-        self.target.forward()
-        self.target.backward(self.applyFunc)
+        self.target.clearBackward()
+        self.target.backward(np.frompyfunc(self.applyFunc, 2, 1))

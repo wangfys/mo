@@ -1,6 +1,5 @@
 import numpy as np
 from .Base import BaseLayer
-from .Base import layerStatus
 
 class Input(BaseLayer):
     """
@@ -19,5 +18,5 @@ class Input(BaseLayer):
             raise Exception("can not find input data for '%s'" % self.name)
         self.output = self.input
 
-    def backward(self):
+    def backward(self, applyGradient):
         pass
