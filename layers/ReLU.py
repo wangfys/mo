@@ -8,6 +8,7 @@ class ReLU(BaseLayer):
     def __init__(self, **args):
         BaseLayer.__init__(self, args)
         self.outShape = np.array(self.inShapes[0])
+        self.outSize = np.prod(self.outShape)
 
     def forward(self, feedInput):
         if BaseLayer.forward(self, feedInput):

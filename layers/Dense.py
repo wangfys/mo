@@ -17,6 +17,7 @@ class Dense(BaseLayer):
         self.b_init = args["b_init"] if "b_init" in args else np.zeros
         self.params = ["K", "b"]
         self.outShape = np.array((self.inShapes[0][0], args["unitNum"]))
+        self.outSize = np.prod(self.outShape)
 
     def init(self, jsonParam=None):
         if jsonParam == None:
@@ -29,6 +30,7 @@ class Dense(BaseLayer):
             return None
         inputTensor = np.array(self.inNodes[0].output)
         outputTensor = np.zeros(self.outShape)
+        print(self.outShape, self.K.shape, self.b.shape)
         for i in range(self.inShapes[0][0]):
             outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
         self.output = outputTensor.reshape(self.outShape)

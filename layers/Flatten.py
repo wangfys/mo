@@ -10,9 +10,8 @@ class Flatten(BaseLayer):
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args)
-        self.outShape = np.array((self.inShapes[0][0], 1))
-        for d in self.inShapes[0][1:]:
-            self.outShape[1] *= d
+        self.outShape = np.array((self.inShapes[0][0], np.prod(self.inShapes[0][1:])))
+        self.outSize = np.prod(self.outShape)
     
     def forward(self, feedInput):
         if BaseLayer.forward(self, feedInput):

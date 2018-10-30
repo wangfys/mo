@@ -10,6 +10,7 @@ class Input(BaseLayer):
     def __init__(self, **args):
         BaseLayer.__init__(self, args)
         self.outShape = np.array(args["shape"])
+        self.outSize = np.prod(self.outShape)
     
     def forward(self, feedInput):
         try:

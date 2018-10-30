@@ -1,9 +1,7 @@
 import numpy as np
 import json
-from enum import Enum
-
-forwardStatus = Enum("forwardStatus", ("uninitialized", "initialized", "computed"))
-backwardStatus = Enum("backwardStatus", ("unforwarded", "forwarded", "computed"))
+from functools import reduce
+from ..lib import forwardStatus, backwardStatus
 
 class BaseLayer(object):
     """
@@ -16,12 +14,13 @@ class BaseLayer(object):
             inNode.outNodes.append(self)
         self.outNodes = []
         self.params = []
-        self.inputGradients = []
+        self.inputGradients = {}
         self.paramGradients = []
         self.forwardStatus = forwardStatus.uninitialized
         self.backwardStatus = backwardStatus.unforwarded
         self.inShapes = [inNode.outShape for inNode in self.inNodes]
-    
+        self.inSizes = [np.prod(inNode.outShape) for inNode in self.inNodes]
+
     def init(self, jsonParam=None):
         if jsonParam != None:
             for param in self.params:
@@ -42,6 +41,7 @@ class BaseLayer(object):
                 inNode.forward(feedInput)
             inNode.forwardStatus = forwardStatus.computed
             inNode.backwardStatus = backwardStatus.forwarded
+        print(self.name, self.inShapes)
     
     def preBackward(self):
         for outNode in self.outNodes:

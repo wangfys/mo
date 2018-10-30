@@ -1,4 +1,5 @@
 import numpy as np
+from ..lib import forwardStatus, backwardStatus
 
 class BaseOptimizer(object):
     """
@@ -8,6 +9,10 @@ class BaseOptimizer(object):
         self.name = args["name"]
         self.target = args["target"]
         self.learning_rate = args["learning_rate"]
+        self.target.outNodes.append(self)
+        self.forwardStatus = forwardStatus.uninitialized
+        self.backwardStatus = backwardStatus.unforwarded
+        self.inputGradients = {self.target.name:np.ones((1, 1))}
     
     def applyFunc(self):
         pass
