@@ -48,6 +48,10 @@ class BaseLayer(object):
                 return True
     
     def backward(self, applyGradient):
+        """
+        inputGradient is a M*N matrix. Consider that the output and input are flattened. M represents the output size of this layer. N represents represents the input size of this layer. The (i,j) element of this matrix means the derivative of output_i of input_j.
+        self.inputGradients is a dict. Each element of it is a M*N matrix (the index is the name of the corresponding input layer). M represents the size of final output. In fact M=1 because the goal of minimize is a single number. The element is the matrix product of the output nodes' inputGradients and inputGradient.
+        """
         self.backwardStatus = backwardStatus.computed
         for inNode in self.inNodes:
             inNode.backward(applyGradient)
