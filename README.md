@@ -4,7 +4,7 @@ Mo is a toy framework for the project of my Machine Learning course. According t
 ## 2. Details of mo
 
 ### 2.1 Layers
-Layers module now provide `Conv2D`, `Dense`, `Flatten`, `Input`, `ReLU` and `Sigmoid` layers. You can use `execute()` method to compute the related part of the compute graph.
+Layers module now provide `Conv2D`, `Dense`, `Flatten`, `Input`, `LeakyReLU` and `Sigmoid` layers. You can use `execute()` method to compute the related part of the compute graph.
 
 ### 2.2 Optimizers
 Optimizers module now only provide `GradientDescent` optimizer. You can use `minimize()` method to back propagate the related part of the compute graph.

@@ -10,6 +10,7 @@ class Dense(BaseLayer):
         unitNum: the number of units in this fully connected layer.
         K_init: the initializer of K, np.zeros if not set
         b_init: the initializer of b, np.zeros if not set
+        fix: whether to fix the parameters during training, False by default
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args)
@@ -38,24 +39,25 @@ class Dense(BaseLayer):
         if BaseLayer.preBackward(self):
             return None
         columnNumber = self.inSizes[0]
-        thisGradient = np.zeros((self.outSize, self.inSizes[0]))
+        thisInputGradient = np.zeros((self.outSize, self.inSizes[0]))
         thisKGradient = np.zeros((self.outSize, self.K.size))
         thisBGradient = np.zeros((self.outSize, self.b.size))
         for i in range(self.inShapes[0][0]):
-            thisGradient[i*self.K.shape[0]:(i+1)*self.K.shape[0], i*self.K.shape[1]:(i+1)*self.K.shape[1]] = self.K
+            thisInputGradient[i*self.K.shape[0]:(i+1)*self.K.shape[0], i*self.K.shape[1]:(i+1)*self.K.shape[1]] = self.K
             thisBGradient[i*self.outShape[1]:(i+1)*self.outShape[1]] = np.diag(np.ones((self.b.size)))
             for j in range(self.K.shape[0]):
-                thisKGradient[i*self.outShape[1]+j, j*self.K.shape[1]:(j+1)*self.K.shape[1]] = self.inNodes[0].output[j*self.K.shape[1]:(j+1)*self.K.shape[1]]
+                thisKGradient[i*self.outShape[1]+j, j*self.K.shape[1]:(j+1)*self.K.shape[1]] = self.inNodes[0].output[j]
         inputGradient = np.zeros((1, columnNumber))
         KGradient = np.zeros((1, self.K.size))
         bGradient = np.zeros((1, self.b.size))
         for outNode in self.outNodes:
-            inputGradient = inputGradient + np.dot(outNode.inputGradients[self.name], thisGradient)
-            KGradient = KGradient + np.dot(outNode.inputGradients[self.name], thisKGradient)
-            bGradient = bGradient + np.dot(outNode.inputGradients[self.name], thisBGradient)
+            inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
+            KGradient +=  np.dot(outNode.inputGradients[self.name], thisKGradient)
+            bGradient += np.dot(outNode.inputGradients[self.name], thisBGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient
-        self.K.ravel()[:] = applyGradient(self.K.flatten(), KGradient.flatten())
-        self.b.ravel()[:] = applyGradient(self.b.flatten(), bGradient.flatten())
-        self.paramGradients["K"] = KGradient
-        self.paramGradients["b"] = bGradient
+        if not self.fix:
+            self.K.ravel()[:] = applyGradient(self.K.flatten(), KGradient.flatten())
+            self.b.ravel()[:] = applyGradient(self.b.flatten(), bGradient.flatten())
+            self.paramGradients["K"] = KGradient
+            self.paramGradients["b"] = bGradient
         BaseLayer.backward(self, applyGradient)

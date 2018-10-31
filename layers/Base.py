@@ -20,6 +20,7 @@ class BaseLayer(object):
         self.backwardStatus = backwardStatus.unforwarded
         self.inShapes = [inNode.outShape for inNode in self.inNodes]
         self.inSizes = [np.prod(inNode.outShape) for inNode in self.inNodes]
+        self.fix = args["fix"] if "fix" in args else False
 
     def init(self, jsonParam=None):
         if jsonParam != None:
@@ -77,6 +78,7 @@ class BaseLayer(object):
             raise Exception("the forward computing of '%s' is unprocessed" % self.name)
         elif self.backwardStatus == backwardStatus.computed:
             self.backwardStatus = backwardStatus.forwarded
+            self.paramGradients = {}
         for outNode in self.outNodes:
             if outNode.backwardStatus == backwardStatus.computed:
                 outNode.clearBackward()

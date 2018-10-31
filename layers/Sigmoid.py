@@ -21,9 +21,9 @@ class Sigmoid(BaseLayer):
             return None
         columnNumber = self.inSizes[0]
         inputVector = (self.output * (1 - self.output)).flatten()
-        thisGradient = np.diag(inputVector)
+        thisInputGradient = np.diag(inputVector)
         inputGradient = np.zeros((1, columnNumber))
         for outNode in self.outNodes:
-            inputGradient = inputGradient + np.dot(outNode.inputGradients[self.name], thisGradient)
+            inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient
         BaseLayer.backward(self, applyGradient)
