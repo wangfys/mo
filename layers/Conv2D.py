@@ -1,5 +1,6 @@
 import numpy as np
 from .Base import BaseLayer
+from .. import initializers
 
 class Conv2D(BaseLayer):
     """
@@ -8,23 +9,23 @@ class Conv2D(BaseLayer):
         name: the name of this layer, should be unique
         input: the input of this layer
         kernel: the shape of kernel, like (output_channels, output_height, output_width), notice that output_height should be the same as output_width
-        K_init: the initializer of K, np.zeros if not set
-        b_init: the initializer of b, np.zeros if not set
+        K_init: the initializer of K, mo.initializers.Constant(0) by default
+        b_init: the initializer of b, mo.initializers.Constant(0) by default
         fix: whether to fix the parameters during training, False by default
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args)
         self.kernelSize = args["kernel"]
-        self.K_init = args["K_init"] if "K_init" in args else np.zeros
-        self.b_init = args["b_init"] if "b_init" in args else np.zeros
+        self.K_init = args["K_init"] if "K_init" in args else initializers.Constant(0)
+        self.b_init = args["b_init"] if "b_init" in args else initializers.Constant(0)
         self.params = ["K", "b"]
         self.outShape = np.array((self.inShapes[0][0], self.kernelSize[0], self.inShapes[0][2]-self.kernelSize[1]+1, self.inShapes[0][3]-self.kernelSize[2]+1))
         self.outSize = np.prod(self.outShape)
     
     def init(self, jsonParam=None):
         if jsonParam == None:
-            self.K = self.K_init((self.kernelSize[0], self.inShapes[0][0], self.kernelSize[1], self.kernelSize[2]))
-            self.b = self.b_init(self.kernelSize[0])
+            self.K = self.K_init.initialize((self.kernelSize[0], self.inShapes[0][0], self.kernelSize[1], self.kernelSize[2]))
+            self.b = self.b_init.initialize(self.kernelSize[0])
         BaseLayer.init(self, jsonParam)
     
     def forward(self, feedInput):

@@ -8,8 +8,8 @@ class Dense(BaseLayer):
         name: the name of this layer, should be unique
         input: the input of this layer
         unitNum: the number of units in this fully connected layer.
-        K_init: the initializer of K, np.zeros if not set
-        b_init: the initializer of b, np.zeros if not set
+        K_init: the initializer of K, mo.initializers.Constant(0) by default
+        b_init: the initializer of b, mo.initializers.Constant(0) by default
         fix: whether to fix the parameters during training, False by default
     """
     def __init__(self, **args):
@@ -22,8 +22,8 @@ class Dense(BaseLayer):
 
     def init(self, jsonParam=None):
         if jsonParam == None:
-            self.K = self.K_init((self.outShape[1], self.inShapes[0][1]))
-            self.b = self.b_init(self.outShape[1])
+            self.K = self.K_init.initialize((self.outShape[1], self.inShapes[0][1]))
+            self.b = self.b_init.initialize(self.outShape[1])
         BaseLayer.init(self, jsonParam)
     
     def forward(self, feedInput):
