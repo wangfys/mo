@@ -1,3 +1,3 @@
 from . import layers
-from .operators import Sum
+from .layers.operators import *
 from . import optimizers

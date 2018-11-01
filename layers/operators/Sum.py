@@ -1,5 +1,5 @@
 import numpy as np
-from ..layers.Base import BaseLayer
+from ..Base import BaseLayer
 
 class Sum(BaseLayer):
     """

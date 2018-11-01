@@ -1,5 +1,5 @@
 import numpy as np
-from .Base import BaseLayer
+from ..Base import BaseLayer
 
 class LeakyReLU(BaseLayer):
     """
