@@ -8,7 +8,7 @@ Mo is a toy framework for the project of my Machine Learning course. According t
 Initializers module now provide `mo.initializers.Constant` and `mo.initializers.UniformRandom` initializers.
 
 ### 2.2 Layers
-Layers module now provide `mo.layers.Conv2D`, `mo.layers.Dense`, `mo.layers.Flatten`, `mo.layers.Input`, `mo.LeakyReLU`, `mo.Log`, `mo.Mean`, `mo.Sigmoid`, `mo.Sum` layers. You can use `init()` method to initialize the related part of the compute graph using provided initializers, `init(string)` method to initialize the related part of the compute graph with a json string , `execute()` method to compute the related part of the compute graph.
+Layers module now provide `mo.layers.Conv2D`, `mo.layers.Dense`, `mo.layers.Flatten`, `mo.layers.Input`, `mo.LeakyReLU`, `mo.Log`, `mo.Mean`, `mo.Sigmoid`, `mo.Sum`, `mo.Add` layers. You can use `init()` method to initialize the related part of the compute graph using provided initializers, `init(string)` method to initialize the related part of the compute graph with a json string , `execute()` method to compute the related part of the compute graph.
 
 ### 2.3 Optimizers
 Optimizers module now only provide `mo.optimizers.GradientDescent` optimizer. You can use `minimize()` method to back propagate the related part of the compute graph.
@@ -28,21 +28,22 @@ f = mo.Sigmoid(name="sigmoid", input=[e])
 g = mo.Log(name="log", input=[f], epsilon=0.0001)
 h = mo.Mean(name="mean", input=[g], axis=0)
 i = mo.Sum(name="sum", input=[h])
-j = mo.optimizers.GradientDescent(name="gradient descent", target=i, learning_rate=0.001)
+j = mo.Add(name="add", input=[i, i, i])
+k = mo.optimizers.GradientDescent(name="gradient descent", target=i, learning_rate=0.001)
 
-jsonData = '{"input": null, "conv": {"K": [[[[0.0,1.0,0.0],[1.0,1.0,1.0],[0.0,1.0,0.0]],[[0.0,1.0,0.0],[1.0,1.0,1.0],[0.0,1.0,0.0]]],[[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,0.0,0.0]],[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,0.0,0.0]]],[[[0.0,1.0,0.0],[0.0,1.0,0.0],[0.0,1.0,0.0]],[[0.0,1.0,0.0],[0.0,1.0,0.0],[0.0,1.0,0.0]]]], "b": [-1.0,0.0,1.0]}, "flatten": null, "dense": {"K": [[0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008,0.009,0.01,0.011,0.012,0.013,0.014,0.015,0.016,0.017,0.018,0.019,0.02,0.021,0.022,0.023,0.024,0.025,0.026,0.027],[0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008,0.009,0.01,0.011,0.012,0.013,0.014,0.015,0.016,0.017,0.018,0.019,0.02,0.021,0.022,0.023,0.024,0.025,0.026,0.027]], "b": [0.001,-0.001]}, "log": null, "mean": null, "sum": null}'
+jsonData = '{"input": null, "conv": {"K": [[[[0.0,1.0,0.0],[1.0,1.0,1.0],[0.0,1.0,0.0]],[[0.0,1.0,0.0],[1.0,1.0,1.0],[0.0,1.0,0.0]]],[[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,0.0,0.0]],[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,0.0,0.0]]],[[[0.0,1.0,0.0],[0.0,1.0,0.0],[0.0,1.0,0.0]],[[0.0,1.0,0.0],[0.0,1.0,0.0],[0.0,1.0,0.0]]]], "b": [-1.0,0.0,1.0]}, "flatten": null, "dense": {"K": [[0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008,0.009,0.01,0.011,0.012,0.013,0.014,0.015,0.016,0.017,0.018,0.019,0.02,0.021,0.022,0.023,0.024,0.025,0.026,0.027],[0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008,0.009,0.01,0.011,0.012,0.013,0.014,0.015,0.016,0.017,0.018,0.019,0.02,0.021,0.022,0.023,0.024,0.025,0.026,0.027]], "b": [0.001,-0.001]}, "log": null, "mean": null, "sum": null, "add": null}'
 
-i.init()
-#h.init(json.loads(jsonData))
+j.init()
+#j.init(json.loads(jsonData))
 
 inputTensor = np.array([[[[1,1,1,1,1],[2,2,2,2,2],[3,3,3,3,3],[4,4,4,4,4],[5,5,5,5,5]],[[1,2,3,4,5],[1,2,3,4,5],[1,2,3,4,5],[1,2,3,4,5],[1,2,3,4,5]]],[[[-1,-1,-1,-1,-1],[-2,-2,-2,-2,-2],[-3,-3,-3,-3,-3],[-4,-4,-4,-4,-4],[-5,-5,-5,-5,-5]],[[-1,-2,-3,-4,-5],[-1,-2,-3,-4,-5],[-1,-2,-3,-4,-5],[-1,-2,-3,-4,-5],[-1,-2,-3,-4,-5]]]])
-i.execute({"input":inputTensor})
-print(i.output)
-print(i.getAllParams())
+j.execute({"input":inputTensor})
+print(j.output)
+print(j.getAllParams())
 
 for _ in range(10):
-    j.minimize()
-    i.execute({"input":inputTensor})
-    print(i.getAllParams())
-    print(i.output)
+    k.minimize()
+    j.execute({"input":inputTensor})
+    print(j.getAllParams())
+    print(j.output)
 ```
