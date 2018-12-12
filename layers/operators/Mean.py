@@ -18,7 +18,7 @@ class Mean(BaseLayer):
         if BaseLayer.forward(self, feedInput):
             return None
         inputTensor = np.array(self.inNodes[0].output)
-        self.output = np.mean(inputTensor, axis=self.axis)
+        self.output = np.mean(inputTensor, axis=self.axis).reshape(self.outShape)
     
     def backward(self, applyGradient):
         if BaseLayer.preBackward(self):
