@@ -1,14 +1,17 @@
 import numpy as np
 from ..Base import BaseLayer
+from ...lib import getNumpyShape
 
 class Mean(BaseLayer):
     """
     This is the reduce mean layer which can add the elements in the tensor.
+    Here are the explanation of args:
+        axis: the same meaning in numpy.mean()
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args)
         self.axis = args["axis"] if "axis" in args else None
-        self.outShape = np.mean(np.zeros(self.inShapes[0]), axis=self.axis).shape if not self.axis == None else np.array([1])
+        self.outShape = getNumpyShape(np.mean(np.zeros(self.inShapes[0]), axis=self.axis))
         self.outSize = np.prod(self.outShape)
 
     def forward(self, feedInput):
