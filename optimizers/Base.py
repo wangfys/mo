@@ -12,7 +12,7 @@ class BaseOptimizer(object):
         self.target.outNodes.append(self)
         self.forwardStatus = forwardStatus.uninitialized
         self.backwardStatus = backwardStatus.unforwarded
-        self.inputGradients = {self.target.name:np.ones((1, 1))}
+        self.inputGradients = {self.target.name:np.ones(self.target.outShape)}
     
     def applyFunc(self):
         pass
