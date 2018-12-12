@@ -1,4 +1,5 @@
 import numpy as np
+from functools import reduce
 from .Base import BaseLayer
 
 class Dense(BaseLayer):
@@ -38,7 +39,6 @@ class Dense(BaseLayer):
     def backward(self, applyGradient):
         if BaseLayer.preBackward(self):
             return None
-        columnNumber = self.inSizes[0]
         thisInputGradient = np.zeros((self.outSize, self.inSizes[0]))
         thisKGradient = np.zeros((self.outSize, self.K.size))
         thisBGradient = np.zeros((self.outSize, self.b.size))
@@ -47,13 +47,9 @@ class Dense(BaseLayer):
             thisBGradient[i*self.outShape[1]:(i+1)*self.outShape[1]] = np.diag(np.ones((self.b.size)))
             for j in range(self.K.shape[0]):
                 thisKGradient[i*self.outShape[1]+j, j*self.K.shape[1]:(j+1)*self.K.shape[1]] = self.inNodes[0].output[j]
-        inputGradient = np.zeros([columnNumber])
-        KGradient = np.zeros([self.K.size])
-        bGradient = np.zeros([self.b.size])
-        for outNode in self.outNodes:
-            inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
-            KGradient += np.dot(outNode.inputGradients[self.name], thisKGradient)
-            bGradient += np.dot(outNode.inputGradients[self.name], thisBGradient)
+        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+        KGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisKGradient) for outNode in self.outNodes])
+        bGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisBGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
         if not self.fix:
             self.K.ravel()[:] = applyGradient(self.K.flatten(), KGradient.flatten())

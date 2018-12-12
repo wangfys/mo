@@ -1,4 +1,5 @@
 import numpy as np
+from functools import reduce
 from ..Base import BaseLayer
 from ...lib import getNumpyShape
 
@@ -32,8 +33,6 @@ class Mean(BaseLayer):
             tmp = np.mean(tmp, axis=self.axis).flatten()
             for j in np.argwhere(tmp!=0):
                 thisInputGradient[j, i] = tmp[j]
-        inputGradient = np.zeros([columnNumber])
-        for outNode in self.outNodes:
-            inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
+        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
         BaseLayer.backward(self, applyGradient)

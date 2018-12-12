@@ -1,4 +1,5 @@
 import numpy as np
+from functools import reduce
 from ..Base import BaseLayer
 
 class Sigmoid(BaseLayer):
@@ -19,11 +20,8 @@ class Sigmoid(BaseLayer):
     def backward(self, applyGradient):
         if BaseLayer.preBackward(self):
             return None
-        columnNumber = self.inSizes[0]
         inputVector = (self.output * (1 - self.output)).flatten()
         thisInputGradient = np.diag(inputVector)
-        inputGradient = np.zeros([columnNumber])
-        for outNode in self.outNodes:
-            inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
+        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
         BaseLayer.backward(self, applyGradient)

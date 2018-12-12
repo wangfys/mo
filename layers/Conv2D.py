@@ -1,4 +1,5 @@
 import numpy as np
+from functools import reduce
 from .Base import BaseLayer
 from .. import initializers
 
@@ -43,7 +44,6 @@ class Conv2D(BaseLayer):
     def backward(self, applyGradient):
         if BaseLayer.preBackward(self):
             return None
-        columnNumber = self.inSizes[0]
         thisInputGradient = np.zeros((self.outSize, self.inSizes[0]))
         thisKGradient = np.zeros((self.outSize, self.K.size))
         thisBGradient = np.zeros((self.outSize, self.b.size))
@@ -62,13 +62,9 @@ class Conv2D(BaseLayer):
                         thisKGradient[index] = tmpKGradient.flatten()
                         thisBGradient[index] = tmpBGradient.flatten()
                         index += 1
-        inputGradient = np.zeros([columnNumber])
-        KGradient = np.zeros([self.K.size])
-        bGradient = np.zeros([self.b.size])
-        for outNode in self.outNodes:
-            inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
-            KGradient += np.dot(outNode.inputGradients[self.name], thisKGradient)
-            bGradient += np.dot(outNode.inputGradients[self.name], thisBGradient)
+        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+        KGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisKGradient) for outNode in self.outNodes])
+        bGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisBGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
         if not self.fix:
             self.K.ravel()[:] = applyGradient(self.K.flatten(), KGradient.flatten())

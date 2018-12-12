@@ -1,4 +1,5 @@
 import numpy as np
+from functools import reduce
 from .Base import BaseLayer
 
 class Flatten(BaseLayer):
@@ -25,8 +26,6 @@ class Flatten(BaseLayer):
         columnNumber = self.inSizes[0]
         inputVector = np.ones([columnNumber])
         thisInputGradient = np.diag(inputVector)
-        inputGradient = np.zeros([columnNumber])
-        for outNode in self.outNodes:
-            inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
+        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
         BaseLayer.backward(self, applyGradient)
