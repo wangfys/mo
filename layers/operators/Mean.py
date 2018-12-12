@@ -9,7 +9,7 @@ class Mean(BaseLayer):
         axis: the same meaning in numpy.mean()
     """
     def __init__(self, **args):
-        BaseLayer.__init__(self, args)
+        BaseLayer.__init__(self, args, inputNum=1)
         self.axis = args["axis"] if "axis" in args else None
         self.outShape = getNumpyShape(np.mean(np.zeros(self.inShapes[0]), axis=self.axis))
         self.outSize = np.prod(self.outShape)

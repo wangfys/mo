@@ -14,7 +14,7 @@ class Conv2D(BaseLayer):
         fix: whether to fix the parameters during training, False by default
     """
     def __init__(self, **args):
-        BaseLayer.__init__(self, args)
+        BaseLayer.__init__(self, args, inputNum=1)
         self.kernelSize = args["kernel"]
         self.K_init = args["K_init"] if "K_init" in args else initializers.Constant(0)
         self.b_init = args["b_init"] if "b_init" in args else initializers.Constant(0)

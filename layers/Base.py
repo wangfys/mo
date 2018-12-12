@@ -7,8 +7,10 @@ class BaseLayer(object):
     """
     This is the base class of all layers.
     """
-    def __init__(self, args):
+    def __init__(self, args, inputNum=None):
         self.name = args["name"]
+        if inputNum != None and len(args["input"]) != inputNum:
+            raise Exception("the number of inputs for '%s' is invalid" % self.name)
         self.inNodes = [inNode for inNode in args["input"]]
         for inNode in self.inNodes:
             inNode.outNodes.append(self)

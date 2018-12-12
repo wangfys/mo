@@ -13,7 +13,7 @@ class Dense(BaseLayer):
         fix: whether to fix the parameters during training, False by default
     """
     def __init__(self, **args):
-        BaseLayer.__init__(self, args)
+        BaseLayer.__init__(self, args, inputNum=1)
         self.K_init = args["K_init"] if "K_init" in args else np.zeros
         self.b_init = args["b_init"] if "b_init" in args else np.zeros
         self.params = ["K", "b"]

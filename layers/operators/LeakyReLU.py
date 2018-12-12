@@ -8,7 +8,7 @@ class LeakyReLU(BaseLayer):
         k: should be in [0,1]
     """
     def __init__(self, **args):
-        BaseLayer.__init__(self, args)
+        BaseLayer.__init__(self, args, inputNum=1)
         self.k = args["k"]
         self.outShape = np.array(self.inShapes[0])
         self.outSize = np.prod(self.outShape)

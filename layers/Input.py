@@ -8,7 +8,7 @@ class Input(BaseLayer):
         name: the name of this layer, should be unique
     """
     def __init__(self, **args):
-        BaseLayer.__init__(self, args)
+        BaseLayer.__init__(self, args, inputNum=0)
         self.outShape = np.array(args["shape"])
         self.outSize = np.prod(self.outShape)
     

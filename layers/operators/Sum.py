@@ -9,7 +9,7 @@ class Sum(BaseLayer):
         axis: the same meaning in numpy.sum()
     """
     def __init__(self, **args):
-        BaseLayer.__init__(self, args)
+        BaseLayer.__init__(self, args, inputNum=1)
         self.axis = args["axis"] if "axis" in args else None
         self.outShape = getNumpyShape(np.sum(np.zeros(self.inShapes[0]), axis=self.axis))
         self.outSize = np.prod(self.outShape)
