@@ -62,9 +62,9 @@ class Conv2D(BaseLayer):
                         thisKGradient[index] = tmpKGradient.flatten()
                         thisBGradient[index] = tmpBGradient.flatten()
                         index += 1
-        inputGradient = np.zeros((1, columnNumber))
-        KGradient = np.zeros((1, self.K.size))
-        bGradient = np.zeros((1, self.b.size))
+        inputGradient = np.zeros([columnNumber])
+        KGradient = np.zeros([self.K.size])
+        bGradient = np.zeros([self.b.size])
         for outNode in self.outNodes:
             inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
             KGradient += np.dot(outNode.inputGradients[self.name], thisKGradient)

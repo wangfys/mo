@@ -23,9 +23,9 @@ class Flatten(BaseLayer):
         if BaseLayer.preBackward(self):
             return None
         columnNumber = self.inSizes[0]
-        inputVector = np.ones((columnNumber))
+        inputVector = np.ones([columnNumber])
         thisInputGradient = np.diag(inputVector)
-        inputGradient = np.zeros((1, columnNumber))
+        inputGradient = np.zeros([columnNumber])
         for outNode in self.outNodes:
             inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient

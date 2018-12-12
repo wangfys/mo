@@ -32,7 +32,7 @@ class Sum(BaseLayer):
             tmp = np.sum(tmp, axis=self.axis).flatten()
             for j in np.argwhere(tmp!=0):
                 thisInputGradient[j, i] = tmp[j]
-        inputGradient = np.zeros((1, columnNumber))
+        inputGradient = np.zeros([columnNumber])
         for outNode in self.outNodes:
             inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient

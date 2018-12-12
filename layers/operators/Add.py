@@ -30,7 +30,7 @@ class Add(BaseLayer):
                 tmp = reduce(np.add, tmp).reshape(self.outShape).flatten()
                 for k in np.argwhere(tmp!=0):
                     thisInputGradient[k, j] = tmp[k]
-            inputGradient = np.zeros((1, rowNumber))
+            inputGradient = np.zeros([rowNumber])
             for outNode in self.outNodes:
                 inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
             self.inputGradients[self.inNodes[i].name] = inputGradient

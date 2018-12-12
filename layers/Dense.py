@@ -47,12 +47,12 @@ class Dense(BaseLayer):
             thisBGradient[i*self.outShape[1]:(i+1)*self.outShape[1]] = np.diag(np.ones((self.b.size)))
             for j in range(self.K.shape[0]):
                 thisKGradient[i*self.outShape[1]+j, j*self.K.shape[1]:(j+1)*self.K.shape[1]] = self.inNodes[0].output[j]
-        inputGradient = np.zeros((1, columnNumber))
-        KGradient = np.zeros((1, self.K.size))
-        bGradient = np.zeros((1, self.b.size))
+        inputGradient = np.zeros([columnNumber])
+        KGradient = np.zeros([self.K.size])
+        bGradient = np.zeros([self.b.size])
         for outNode in self.outNodes:
             inputGradient += np.dot(outNode.inputGradients[self.name], thisInputGradient)
-            KGradient +=  np.dot(outNode.inputGradients[self.name], thisKGradient)
+            KGradient += np.dot(outNode.inputGradients[self.name], thisKGradient)
             bGradient += np.dot(outNode.inputGradients[self.name], thisBGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient
         if not self.fix:
