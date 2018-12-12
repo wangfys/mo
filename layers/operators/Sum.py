@@ -1,14 +1,17 @@
 import numpy as np
 from ..Base import BaseLayer
+from ...lib import getNumpyShape
 
 class Sum(BaseLayer):
     """
     This is the reduce sum layer which can add the elements in the tensor.
+    Here are the explanation of args:
+        axis: the same meaning in numpy.sum()
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args)
         self.axis = args["axis"] if "axis" in args else None
-        self.outShape = np.sum(np.zeros(self.inShapes[0]), axis=self.axis).shape if not self.axis == None else np.array([1])
+        self.outShape = getNumpyShape(np.sum(np.zeros(self.inShapes[0]), axis=self.axis))
         self.outSize = np.prod(self.outShape)
 
     def forward(self, feedInput):
