@@ -4,6 +4,9 @@ from ..Base import BaseLayer
 from ...lib import Config
 
 class CrossEntropy(BaseLayer):
+    """
+    This is the cross entropy layer.
+    """
     def __init__(self, **args):
         BaseLayer.__init__(self, args, inputNum=2)
         if (self.inShapes[0] != self.inShapes[1]).any():
