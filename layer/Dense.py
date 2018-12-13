@@ -1,6 +1,7 @@
 import numpy as np
 from functools import reduce
 from .Base import BaseLayer
+from .. import initializer
 from ..lib import Config
 
 class Dense(BaseLayer):
@@ -10,14 +11,14 @@ class Dense(BaseLayer):
         name: the name of this layer, should be unique
         input: the input of this layer
         unitNum: the number of units in this fully connected layer.
-        K_init: the initializer of K, mo.initializers.Constant(0) by default
-        b_init: the initializer of b, mo.initializers.Constant(0) by default
+        K_init: the initializer of K, mo.initializer.Constant(0) by default
+        b_init: the initializer of b, mo.initializer.Constant(0) by default
         fix: whether to fix the parameters during training, False by default
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args, inputNum=1)
-        self.K_init = args["K_init"] if "K_init" in args else np.zeros
-        self.b_init = args["b_init"] if "b_init" in args else np.zeros
+        self.K_init = args["K_init"] if "K_init" in args else initializer.Constant(0)
+        self.b_init = args["b_init"] if "b_init" in args else initializer.Constant(0)
         self.params = ["K", "b"]
         self.outShape = np.array((self.inShapes[0][0], args["unitNum"]))
         self.outSize = np.prod(self.outShape)
