@@ -13,7 +13,8 @@ class BaseLayer(object):
             raise Exception("the number of inputs for '%s' is invalid" % self.name)
         self.inNodes = [inNode for inNode in args["input"]]
         for inNode in self.inNodes:
-            inNode.outNodes.append(self)
+            if not self in inNode.outNodes:
+                inNode.outNodes.append(self)
         self.outNodes = []
         self.params = []
         self.inputGradients = {}
