@@ -13,9 +13,9 @@ class Input(BaseLayer):
         self.outSize = np.prod(self.outShape)
     
     def forward(self, feedInput):
-        try:
+        if self.name in feedInput:
             self.input = np.array(feedInput[self.name])
-        except:
+        else:
             raise Exception("can not find input data for '%s'" % self.name)
         self.output = self.input
 
