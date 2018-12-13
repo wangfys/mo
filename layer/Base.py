@@ -1,14 +1,25 @@
 import numpy as np
 import json
 from functools import reduce
-from ..lib import forwardStatus, backwardStatus
+from ..lib import forwardStatus, backwardStatus, Nodes, UnnamedNodes
 
 class BaseLayer(object):
     """
     This is the base class of all layers.
     """
     def __init__(self, args, inputNum=None):
-        self.name = args["name"]
+        if "name" in args:
+            if args["name"] in Nodes:
+                raise Exception("already have a node named '%s'" % args["name"])
+            else:
+                self.name = "_" + args["name"]
+        else:
+            className = self.__class__.__name__
+            if className in UnnamedNodes:
+                UnnamedNodes[className] += 1
+            else:
+                UnnamedNodes[className] = 0
+            self.name = className + str(UnnamedNodes[className])
         if inputNum != None and len(args["input"]) != inputNum:
             raise Exception("the number of inputs for '%s' is invalid" % self.name)
         self.inNodes = [inNode for inNode in args["input"]]

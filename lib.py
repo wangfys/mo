@@ -11,3 +11,5 @@ def getNumpyShape(data):
         return np.array(data.shape)
 
 Config = {"imperative": False}
+Nodes = set()
+UnnamedNodes = {}
