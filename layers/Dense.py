@@ -22,14 +22,21 @@ class Dense(BaseLayer):
         self.outShape = np.array((self.inShapes[0][0], args["unitNum"]))
         self.outSize = np.prod(self.outShape)
         if Config["imperative"]:
-            self.init()
+            if "thisParam" in args:
+                self.init(thisParam=args["thisParam"])
+            else:
+                self.init()
             self.forward({})
 
-    def init(self, jsonParam=None):
+    def init(self, jsonParam=None, thisParam=None):
         if jsonParam == None:
             self.K = self.K_init.initialize((self.outShape[1], self.inShapes[0][1]))
             self.b = self.b_init.initialize(self.outShape[1])
-        BaseLayer.init(self, jsonParam)
+        if Config["imperative"] and thisParam != None:
+            self.K = np.array(thisParam["K"])
+            self.b = np.array(thisParam["b"])
+        if not Config["imperative"]:
+            BaseLayer.init(self, jsonParam)
     
     def forward(self, feedInput):
         if BaseLayer.forward(self, feedInput):

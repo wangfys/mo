@@ -62,7 +62,7 @@ inputTensor = np.array([[[[1,1,1,1,1],[2,2,2,2,2],[3,3,3,3,3],[4,4,4,4,4],[5,5,5
 
 a = mo.layers.Input(name="input", input=[], shape=(2, 2, 5, 5), data=inputTensor) # Using "imperative" style, don't forget to provide data at once
 print(a) # You can use a print() to get the result at once
-b = mo.layers.Conv2D(name="conv", input=[a], kernel=(3,3,3), K_init=mo.initializers.UniformRandom(-0.01, 0.01), b_init=mo.initializers.UniformRandom(-0.01, 0.01))
+b = mo.layers.Conv2D(name="conv", input=[a], kernel=(3,3,3), thisParam={"K": [[[[0.0,1.0,0.0],[1.0,1.0,1.0],[0.0,1.0,0.0]],[[0.0,1.0,0.0],[1.0,1.0,1.0],[0.0,1.0,0.0]]],[[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,0.0,0.0]],[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,0.0,0.0]]],[[[0.0,1.0,0.0],[0.0,1.0,0.0],[0.0,1.0,0.0]],[[0.0,1.0,0.0],[0.0,1.0,0.0],[0.0,1.0,0.0]]]], "b": [-1.0,0.0,1.0]}) # Using "imperative" style, you can provide params of this layer via "thisParam" arguments
 print(b)
 c = mo.layers.Flatten(name="flatten", input=[b])
 print(c)
