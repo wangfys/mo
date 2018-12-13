@@ -2,6 +2,7 @@ import numpy as np
 from functools import reduce
 from .Base import BaseLayer
 from .. import initializers
+from ..lib import Config
 
 class Conv2D(BaseLayer):
     """
@@ -22,6 +23,9 @@ class Conv2D(BaseLayer):
         self.params = ["K", "b"]
         self.outShape = np.array((self.inShapes[0][0], self.kernelSize[0], self.inShapes[0][2]-self.kernelSize[1]+1, self.inShapes[0][3]-self.kernelSize[2]+1))
         self.outSize = np.prod(self.outShape)
+        if Config["imperative"]:
+            self.init()
+            self.forward({})
     
     def init(self, jsonParam=None):
         if jsonParam == None:

@@ -1,7 +1,7 @@
 import numpy as np
 from functools import reduce
 from ..Base import BaseLayer
-from ...lib import getNumpyShape
+from ...lib import getNumpyShape, Config
 
 class Mean(BaseLayer):
     """
@@ -14,6 +14,8 @@ class Mean(BaseLayer):
         self.axis = args["axis"] if "axis" in args else None
         self.outShape = getNumpyShape(np.mean(np.zeros(self.inShapes[0]), axis=self.axis))
         self.outSize = np.prod(self.outShape)
+        if Config["imperative"]:
+            self.forward({})
 
     def forward(self, feedInput):
         if BaseLayer.forward(self, feedInput):

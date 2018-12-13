@@ -1,6 +1,7 @@
 import numpy as np
 from functools import reduce
 from .Base import BaseLayer
+from ..lib import Config
 
 class Flatten(BaseLayer):
     """
@@ -13,6 +14,8 @@ class Flatten(BaseLayer):
         BaseLayer.__init__(self, args, inputNum=1)
         self.outShape = np.array((self.inShapes[0][0], np.prod(self.inShapes[0][1:])))
         self.outSize = np.prod(self.outShape)
+        if Config["imperative"]:
+            self.forward({})
     
     def forward(self, feedInput):
         if BaseLayer.forward(self, feedInput):

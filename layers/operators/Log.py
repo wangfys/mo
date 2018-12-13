@@ -1,6 +1,7 @@
 import numpy as np
 from functools import reduce
 from ..Base import BaseLayer
+from ...lib import Config
 
 class Log(BaseLayer):
     """
@@ -13,6 +14,8 @@ class Log(BaseLayer):
         self.epsilon = args["epsilon"] if "epsilon" in args else 0
         self.outShape = np.array(self.inShapes[0])
         self.outSize = np.prod(self.outShape)
+        if Config["imperative"]:
+            self.forward({})
 
     def forward(self, feedInput):
         if BaseLayer.forward(self, feedInput):

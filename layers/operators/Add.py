@@ -1,7 +1,7 @@
 import numpy as np
 from functools import reduce
 from ..Base import BaseLayer
-from ...lib import getNumpyShape
+from ...lib import getNumpyShape, Config
 
 class Add(BaseLayer):
     """
@@ -11,6 +11,8 @@ class Add(BaseLayer):
         BaseLayer.__init__(self, args)
         self.outShape = getNumpyShape(reduce(np.add, [np.zeros(inNode.outShape) for inNode in self.inNodes]))
         self.outSize = np.prod(self.outShape)
+        if Config["imperative"]:
+            self.forward({})
 
     def forward(self, feedInput):
         if BaseLayer.forward(self, feedInput):

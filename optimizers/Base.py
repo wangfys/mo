@@ -1,5 +1,5 @@
 import numpy as np
-from ..lib import forwardStatus, backwardStatus
+from ..lib import forwardStatus, backwardStatus, Config
 
 class BaseOptimizer(object):
     """
@@ -13,6 +13,9 @@ class BaseOptimizer(object):
         self.forwardStatus = forwardStatus.uninitialized
         self.backwardStatus = backwardStatus.unforwarded
         self.inputGradients = {self.target.name:np.ones(self.target.outShape)}
+        if Config["imperative"]:
+            self.target.init()
+            self.target.execute({})
     
     def applyFunc(self):
         pass

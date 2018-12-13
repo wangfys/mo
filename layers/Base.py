@@ -24,6 +24,10 @@ class BaseLayer(object):
         self.inShapes = [inNode.outShape for inNode in self.inNodes]
         self.inSizes = [np.prod(inNode.outShape) for inNode in self.inNodes]
         self.fix = args["fix"] if "fix" in args else False
+        self.output = None
+    
+    def __repr__(self):
+        return str(self.output)
 
     def init(self, jsonParam=None):
         if jsonParam != None:

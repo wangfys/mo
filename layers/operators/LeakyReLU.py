@@ -1,6 +1,7 @@
 import numpy as np
 from functools import reduce
 from ..Base import BaseLayer
+from ...lib import Config
 
 class LeakyReLU(BaseLayer):
     """
@@ -13,6 +14,8 @@ class LeakyReLU(BaseLayer):
         self.k = args["k"]
         self.outShape = np.array(self.inShapes[0])
         self.outSize = np.prod(self.outShape)
+        if Config["imperative"]:
+            self.forward({})
 
     def forward(self, feedInput):
         if BaseLayer.forward(self, feedInput):

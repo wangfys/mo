@@ -1,6 +1,7 @@
 import numpy as np
 from functools import reduce
 from .Base import BaseLayer
+from ..lib import Config
 
 class Dense(BaseLayer):
     """
@@ -20,6 +21,9 @@ class Dense(BaseLayer):
         self.params = ["K", "b"]
         self.outShape = np.array((self.inShapes[0][0], args["unitNum"]))
         self.outSize = np.prod(self.outShape)
+        if Config["imperative"]:
+            self.init()
+            self.forward({})
 
     def init(self, jsonParam=None):
         if jsonParam == None:
