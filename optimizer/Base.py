@@ -10,14 +10,14 @@ class BaseOptimizer(object):
             if args["name"] in Nodes:
                 raise Exception("already have a node named '%s'" % args["name"])
             else:
-                self.name = "_" + args["name"]
+                self.name = args["name"]
         else:
             className = self.__class__.__name__
             if className in UnnamedNodes:
                 UnnamedNodes[className] += 1
             else:
                 UnnamedNodes[className] = 0
-            self.name = className + str(UnnamedNodes[className])
+            self.name = className + str(UnnamedNodes[className]) + "_auto"
         self.target = args["target"]
         self.learning_rate = args["learning_rate"]
         self.target.outNodes.append(self)

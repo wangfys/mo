@@ -12,14 +12,14 @@ class BaseLayer(object):
             if args["name"] in Nodes:
                 raise Exception("already have a node named '%s'" % args["name"])
             else:
-                self.name = "_" + args["name"]
+                self.name = args["name"]
         else:
             className = self.__class__.__name__
             if className in UnnamedNodes:
                 UnnamedNodes[className] += 1
             else:
                 UnnamedNodes[className] = 0
-            self.name = className + str(UnnamedNodes[className])
+            self.name = className + str(UnnamedNodes[className]) + "_auto"
         if inputNum != None and len(args["input"]) != inputNum:
             raise Exception("the number of inputs for '%s' is invalid" % self.name)
         self.inNodes = [inNode for inNode in args["input"]]
