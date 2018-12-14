@@ -33,6 +33,5 @@ class Softmax(BaseLayer):
                         thisInputGradient[J][K] = inputVector[J] * (1 - inputVector[K])
                     else:
                         thisInputGradient[J][K] = -inputVector[J] * inputVector[K]
-        print(thisInputGradient)
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient

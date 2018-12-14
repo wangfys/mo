@@ -65,7 +65,6 @@ class BaseLayer(object):
         for name in Nodes:
             if len(Nodes[name].params) != 0:
                 params = {}
-                print(name, Nodes[name].params)
                 for param in Nodes[name].params:
                     params[param] = Nodes[name].__dict__[param].tolist()
                 result[name] = params
