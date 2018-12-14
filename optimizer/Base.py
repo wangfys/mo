@@ -24,7 +24,7 @@ class BaseOptimizer(object):
         self.target.outNodes.append(self)
         self.forwardStatus = forwardStatus.uninitialized
         self.backwardStatus = backwardStatus.unforwarded
-        self.inputGradients = {self.target.name:np.ones(self.target.outShape)}
+        self.inputGradients = {self.target.name:np.diag(np.ones(self.target.outSize))}
         if Config["imperative"]:
             self.target.init()
             self.target.execute({})
