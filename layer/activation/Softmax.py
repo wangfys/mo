@@ -15,17 +15,13 @@ class Softmax(BaseLayer):
             self.forward({})
 
     def forward(self, feedInput):
-        if BaseLayer.forward(self, feedInput):
-            return None
         tmpTensor = np.array(self.inNodes[0].output)
         tmpTensor = np.exp(tmpTensor)
         for i in range(self.outShape[0]):
             tmpTensor[i] = tmpTensor[i] / np.sum(tmpTensor[i])
         self.output = tmpTensor
-    
-    def backward(self, applyGradient):
-        if BaseLayer.preBackward(self):
-            return None
+
+    def calcGradient(self):
         inputVector = self.output.flatten()
         thisInputGradient = np.zeros((self.outSize, self.outSize))
         for i in range(self.outShape[0]):
@@ -40,4 +36,3 @@ class Softmax(BaseLayer):
         print(thisInputGradient)
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
-        BaseLayer.backward(self, applyGradient)

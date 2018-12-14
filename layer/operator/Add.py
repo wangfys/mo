@@ -16,13 +16,9 @@ class Add(BaseLayer):
             self.forward({})
 
     def forward(self, feedInput):
-        if BaseLayer.forward(self, feedInput):
-            return None
         self.output = reduce(np.add, [inNode.output for inNode in self.inNodes]).reshape(self.outShape)
-    
-    def backward(self, applyGradient):
-        if BaseLayer.preBackward(self):
-            return None
+
+    def calcGradient(self):
         rowNumber = self.outSize
         for i in range(len(self.inNodes)):
             columnNumber = self.inNodes[i].outSize
@@ -38,4 +34,3 @@ class Add(BaseLayer):
                 self.inputGradients[self.inNodes[i].name] += inputGradient
             else:
                 self.inputGradients[self.inNodes[i].name] = inputGradient
-        BaseLayer.backward(self, applyGradient)

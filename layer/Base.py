@@ -1,7 +1,7 @@
 import numpy as np
 import json
 from functools import reduce
-from ..lib import forwardStatus, backwardStatus
+from ..lib import mergeComputeSequence
 from ..globalvar import *
 
 class BaseLayer(object):
@@ -32,97 +32,61 @@ class BaseLayer(object):
         self.params = []
         self.inputGradients = {}
         self.paramGradients = {}
-        self.forwardStatus = forwardStatus.uninitialized
-        self.backwardStatus = backwardStatus.unforwarded
         self.inShapes = [inNode.outShape for inNode in self.inNodes]
         self.inSizes = [np.prod(inNode.outShape) for inNode in self.inNodes]
         self.fix = args["fix"] if "fix" in args else False
         self.output = None
-    
+        if len(self.inNodes) > 0:
+            self.computeSequence = reduce(mergeComputeSequence, [inNode.computeSequence for inNode in self.inNodes]).copy()
+            self.computeSequence.append(self.name)
+        else:
+            self.computeSequence = [self.name]
+
     def __repr__(self):
         return str(self.output)
 
-    def init(self, jsonParam=None):
-        if jsonParam != None:
-            for param in self.params:
-                try:
-                    self.__dict__[param] = np.array(jsonParam[self.name][param])
-                except:
-                    raise Exception("can not initialize parameter '%s' of '%s'" % (param, self.name))
-        self.forwardStatus = forwardStatus.initialized
-        for inNode in self.inNodes:
-            if inNode.forwardStatus != forwardStatus.initialized:
-                inNode.init(jsonParam)
+    def applyGradientDescent(self, applyFunc):
+        pass
 
-    def forward(self, feedInput):
-        if self.forwardStatus == forwardStatus.computed:
-            return True
-        for inNode in self.inNodes:
-            if inNode.forwardStatus != forwardStatus.computed:
-                inNode.forward(feedInput)
-            inNode.forwardStatus = forwardStatus.computed
-            inNode.backwardStatus = backwardStatus.forwarded
-    
-    def preBackward(self):
-        for outNode in self.outNodes:
-            if outNode.forwardStatus == forwardStatus.computed and outNode.backwardStatus != backwardStatus.computed:
-                return True
-    
-    def backward(self, applyGradient):
+    def backward(self, applyFunc):
         """
         inputGradient is a M*N matrix. Consider that the output and input are flattened. M represents the output size of this layer. N represents represents the input size of this layer. The (i,j) element of this matrix means the derivative of output_i of input_j.
         self.inputGradients is a dict. Each element of it is a M*N matrix (the index is the name of the corresponding input layer). M represents the size of final output. In fact M=1 because the goal of minimize is a single number. The element is the matrix product of the output nodes' inputGradients and inputGradient.
         """
-        self.backwardStatus = backwardStatus.computed
-        for inNode in self.inNodes:
-            inNode.backward(applyGradient)
-    
-    def clearForward(self):
-        for inNode in self.inNodes:
-            if inNode.forwardStatus == forwardStatus.computed:
-                inNode.clearForward()
-        if self.forwardStatus == forwardStatus.uninitialized:
-            raise Exception("the parameters of '%s' is uninitialized" % self.name)
-        elif self.forwardStatus == forwardStatus.computed:
-            self.forwardStatus = forwardStatus.initialized
-            self.backwardStatus = backwardStatus.unforwarded
-        for outNode in self.outNodes:
-            if outNode.forwardStatus == forwardStatus.computed:
-                outNode.clearForward()
-
-    def clearBackward(self):
-        for inNode in self.inNodes:
-            if inNode.backwardStatus == backwardStatus.computed:
-                inNode.clearBackward()
-        if self.backwardStatus == backwardStatus.unforwarded:
-            raise Exception("the forward computing of '%s' is unprocessed" % self.name)
-        elif self.backwardStatus == backwardStatus.computed:
-            self.backwardStatus = backwardStatus.forwarded
-            self.paramGradients = {}
-        for outNode in self.outNodes:
-            if outNode.backwardStatus == backwardStatus.computed:
-                outNode.clearBackward()
+        self.calcGradient()
+        self.applyGradientDescent(applyFunc)
 
     def execute(self, feedInput):
-        self.clearForward()
-        self.forward(feedInput)
-        self.forwardStatus = forwardStatus.computed
-        self.backwardStatus = backwardStatus.forwarded
-    
-    def getAllParams(self, result=None, returnJSON=True):
-        if returnJSON:
-            result = {}
-        if self.name not in result:
-            for inNode in self.inNodes:
-                inNode.getAllParams(result=result, returnJSON=False)
-            if len(self.params) != 0:
+        for name in self.computeSequence:
+            Nodes[name].forward(feedInput)
+
+    def getAllParams(self, returnJSON=True):
+        result = {}
+        for name in Nodes:
+            if len(Nodes[name].params) != 0:
                 params = {}
-                for param in self.params:
-                    params[param] = self.__dict__[param].tolist()
-                result[self.name] = params
+                print(name, Nodes[name].params)
+                for param in Nodes[name].params:
+                    params[param] = Nodes[name].__dict__[param].tolist()
+                result[name] = params
             else:
-                result[self.name] = None
-            for outNode in self.outNodes:
-                outNode.getAllParams(result=result, returnJSON=False)
+                result[name] = None
         if returnJSON:
             return json.dumps(result)
+        else:
+            return result
+
+    def calcGradient(self):
+        pass
+
+    def init(self, jsonParam=None):
+        pass
+
+    def initialize(self, jsonParam=None):
+        for name in self.computeSequence:
+            Nodes[name].init(jsonParam)
+
+
+
+
+

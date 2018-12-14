@@ -19,14 +19,10 @@ class Mean(BaseLayer):
             self.forward({})
 
     def forward(self, feedInput):
-        if BaseLayer.forward(self, feedInput):
-            return None
         inputTensor = np.array(self.inNodes[0].output)
         self.output = np.mean(inputTensor, axis=self.axis).reshape(self.outShape)
-    
-    def backward(self, applyGradient):
-        if BaseLayer.preBackward(self):
-            return None
+
+    def calcGradient(self):
         rowNumber = self.outSize
         columnNumber = self.inSizes[0]
         thisInputGradient = np.zeros((rowNumber, columnNumber))
@@ -38,4 +34,3 @@ class Mean(BaseLayer):
                 thisInputGradient[j, i] = tmp[j]
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
-        BaseLayer.backward(self, applyGradient)

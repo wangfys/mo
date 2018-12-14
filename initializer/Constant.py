@@ -7,6 +7,6 @@ class Constant(BaseInitializer):
     """
     def __init__(self, constant):
         self.constant = constant
-    
+
     def initialize(self, shape):
         return np.full(shape, self.constant)

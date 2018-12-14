@@ -33,24 +33,21 @@ class Dense(BaseLayer):
         if jsonParam == None:
             self.K = self.K_init.initialize((self.outShape[1], self.inShapes[0][1]))
             self.b = self.b_init.initialize(self.outShape[1])
+        else:
+            self.K = jsonParam[self.name]["K"]
+            self.b = jsonParam[self.name]["b"]
         if Config["imperative"] and thisParam != None:
             self.K = np.array(thisParam["K"])
             self.b = np.array(thisParam["b"])
-        if not Config["imperative"]:
-            BaseLayer.init(self, jsonParam)
-    
+
     def forward(self, feedInput):
-        if BaseLayer.forward(self, feedInput):
-            return None
         inputTensor = np.array(self.inNodes[0].output)
         outputTensor = np.zeros(self.outShape)
         for i in range(self.inShapes[0][0]):
             outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
         self.output = outputTensor.reshape(self.outShape)
-    
-    def backward(self, applyGradient):
-        if BaseLayer.preBackward(self):
-            return None
+
+    def calcGradient(self):
         thisInputGradient = np.zeros((self.outSize, self.inSizes[0]))
         thisKGradient = np.zeros((self.outSize, self.K.size))
         thisBGradient = np.zeros((self.outSize, self.b.size))
@@ -63,9 +60,10 @@ class Dense(BaseLayer):
         KGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisKGradient) for outNode in self.outNodes])
         bGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisBGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
+        self.paramGradients["K"] = KGradient
+        self.paramGradients["b"] = bGradient
+
+    def applyGradientDescent(self, applyFunc):
         if not self.fix:
-            self.K.ravel()[:] = applyGradient(self.K.flatten(), KGradient.flatten())
-            self.b.ravel()[:] = applyGradient(self.b.flatten(), bGradient.flatten())
-            self.paramGradients["K"] = KGradient
-            self.paramGradients["b"] = bGradient
-        BaseLayer.backward(self, applyGradient)
+            self.K.ravel()[:] = applyFunc(self.K.flatten(), self.paramGradients["K"].flatten())
+            self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())

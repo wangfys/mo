@@ -18,16 +18,11 @@ class LeakyReLU(BaseLayer):
             self.forward({})
 
     def forward(self, feedInput):
-        if BaseLayer.forward(self, feedInput):
-            return None
         outputTensor = np.array(self.inNodes[0].output)
         self.output = np.maximum(outputTensor, self.k * outputTensor)
-    
-    def backward(self, applyGradient):
-        if BaseLayer.preBackward(self):
-            return None
+
+    def calcGradient(self):
         inputVector = np.where(self.output>0, 1, self.k).flatten()
         thisInputGradient = np.diag(inputVector)
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
-        BaseLayer.backward(self, applyGradient)

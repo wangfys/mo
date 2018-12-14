@@ -1,5 +1,4 @@
 import numpy as np
-from ..lib import forwardStatus, backwardStatus
 from ..globalvar import *
 
 class BaseOptimizer(object):
@@ -23,19 +22,17 @@ class BaseOptimizer(object):
         self.target = args["target"]
         self.learning_rate = args["learning_rate"]
         self.target.outNodes.append(self)
-        self.forwardStatus = forwardStatus.uninitialized
-        self.backwardStatus = backwardStatus.unforwarded
         self.inputGradients = {self.target.name:np.diag(np.ones(self.target.outSize))}
+        self.computeSequence = self.target.computeSequence.copy()
+        self.params = []
         if Config["imperative"]:
             self.target.init()
             self.target.execute({})
-    
+
     def applyFunc(self):
         pass
-    
+
     def minimize(self):
-        self.target.clearBackward()
-        self.target.backward(np.frompyfunc(self.applyFunc, 2, 1))
-    
-    def getAllParams(self, result=None, returnJSON=True):
-        return None
+        for i in range(len(self.computeSequence)-1, 0, -1):
+            name = self.computeSequence[i]
+            Nodes[name].backward(np.frompyfunc(self.applyFunc, 2, 1))

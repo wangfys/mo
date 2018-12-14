@@ -18,16 +18,11 @@ class Log(BaseLayer):
             self.forward({})
 
     def forward(self, feedInput):
-        if BaseLayer.forward(self, feedInput):
-            return None
         outputTensor = np.array(self.inNodes[0].output)
         self.output = np.log(outputTensor + self.epsilon)
-    
-    def backward(self, applyGradient):
-        if BaseLayer.preBackward(self):
-            return None
+
+    def calcGradient(self):
         inputVector = (1 / np.array(self.inNodes[0].output + self.epsilon)).flatten()
         thisInputGradient = np.diag(inputVector)
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
-        BaseLayer.backward(self, applyGradient)
