@@ -1,7 +1,8 @@
 import numpy as np
 import json
 from functools import reduce
-from ..lib import forwardStatus, backwardStatus, Nodes, UnnamedNodes
+from ..lib import forwardStatus, backwardStatus
+from ..globalvar import *
 
 class BaseLayer(object):
     """

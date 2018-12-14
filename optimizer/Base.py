@@ -1,5 +1,6 @@
 import numpy as np
-from ..lib import forwardStatus, backwardStatus, Config, Nodes, UnnamedNodes
+from ..lib import forwardStatus, backwardStatus
+from ..globalvar import *
 
 class BaseOptimizer(object):
     """

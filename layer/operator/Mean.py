@@ -1,7 +1,8 @@
 import numpy as np
 from functools import reduce
 from ..Base import BaseLayer
-from ...lib import getNumpyShape, Config
+from ...lib import getNumpyShape
+from ...globalvar import *
 
 class Mean(BaseLayer):
     """

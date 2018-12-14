@@ -1,7 +1,7 @@
 import numpy as np
 from functools import reduce
 from ..Base import BaseLayer
-from ...lib import Config
+from ...globalvar import *
 
 class Log(BaseLayer):
     """

@@ -1,4 +1,5 @@
 from .Base import BaseOptimizer
+from ..globalvar import *
 
 class GradientDescent(BaseOptimizer):
     """

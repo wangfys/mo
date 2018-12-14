@@ -9,7 +9,3 @@ def getNumpyShape(data):
         return np.array([1])
     else:
         return np.array(data.shape)
-
-Config = {"imperative": False}
-Nodes = set()
-UnnamedNodes = {}

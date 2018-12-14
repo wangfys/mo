@@ -1,6 +1,6 @@
 import numpy as np
 from .Base import BaseLayer
-from ..lib import Config
+from ..globalvar import *
 
 class Input(BaseLayer):
     """
