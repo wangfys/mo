@@ -35,8 +35,8 @@ class Conv2D(BaseLayer):
             self.K = self.K_init.initialize((self.kernelSize[0], self.inShapes[0][0], self.kernelSize[1], self.kernelSize[2]))
             self.b = self.b_init.initialize(self.kernelSize[0])
         else:
-            self.K = jsonParam[self.name]["K"]
-            self.b = jsonParam[self.name]["b"]
+            self.K = np.array(jsonParam[self.name]["K"])
+            self.b = np.array(jsonParam[self.name]["b"])
         if Config["imperative"] and thisParam != None:
             self.K = np.array(thisParam["K"])
             self.b = np.array(thisParam["b"])
