@@ -14,12 +14,16 @@ class Input(BaseLayer):
         self.outSize = np.prod(self.outShape)
         if Config["imperative"]:
             self.input = np.array(args["data"])
+            if (self.input.shape != self.outShape).any():
+                raise Exception("data size error in '%s'" % self.name)
             self.forward({})
     
     def forward(self, feedInput):
         if not Config["imperative"] or feedInput != {}:
             if self.name in feedInput:
                 self.input = np.array(feedInput[self.name])
+                if (self.input.shape != self.outShape).any():
+                    raise Exception("data size error in '%s'" % self.name)
             else:
                 raise Exception("can not find input data for '%s'" % self.name)
         self.output = self.input
