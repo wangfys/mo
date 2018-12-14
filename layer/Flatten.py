@@ -17,13 +17,13 @@ class Flatten(BaseLayer):
         if Config["imperative"]:
             self.forward({})
 
-    def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output)
-        self.output = inputTensor.reshape(self.outShape)
-
     def calcGradient(self):
         columnNumber = self.inSizes[0]
         inputVector = np.ones([columnNumber])
         thisInputGradient = np.diag(inputVector)
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
+
+    def forward(self, feedInput):
+        inputTensor = np.array(self.inNodes[0].output)
+        self.output = inputTensor.reshape(self.outShape)

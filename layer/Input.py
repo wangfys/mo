@@ -17,7 +17,7 @@ class Input(BaseLayer):
             if (self.input.shape != self.outShape).any():
                 raise Exception("data size error in '%s'" % self.name)
             self.forward({})
-    
+
     def forward(self, feedInput):
         if not Config["imperative"] or feedInput != {}:
             if self.name in feedInput:

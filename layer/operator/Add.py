@@ -15,9 +15,6 @@ class Add(BaseLayer):
         if Config["imperative"]:
             self.forward({})
 
-    def forward(self, feedInput):
-        self.output = reduce(np.add, [inNode.output for inNode in self.inNodes]).reshape(self.outShape)
-
     def calcGradient(self):
         rowNumber = self.outSize
         for i in range(len(self.inNodes)):
@@ -34,3 +31,6 @@ class Add(BaseLayer):
                 self.inputGradients[self.inNodes[i].name] += inputGradient
             else:
                 self.inputGradients[self.inNodes[i].name] = inputGradient
+
+    def forward(self, feedInput):
+        self.output = reduce(np.add, [inNode.output for inNode in self.inNodes]).reshape(self.outShape)

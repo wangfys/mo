@@ -18,10 +18,6 @@ class Sum(BaseLayer):
         if Config["imperative"]:
             self.forward({})
 
-    def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output)
-        self.output = np.sum(inputTensor, axis=self.axis).reshape(self.outShape)
-
     def calcGradient(self):
         rowNumber = self.outSize
         columnNumber = self.inSizes[0]
@@ -34,3 +30,7 @@ class Sum(BaseLayer):
                 thisInputGradient[j, i] = tmp[j]
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
+
+    def forward(self, feedInput):
+        inputTensor = np.array(self.inNodes[0].output)
+        self.output = np.sum(inputTensor, axis=self.axis).reshape(self.outShape)

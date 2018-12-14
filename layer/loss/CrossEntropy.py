@@ -16,9 +16,6 @@ class CrossEntropy(BaseLayer):
         if Config["imperative"]:
             self.forward({})
 
-    def forward(self, feedInput):
-        self.output = np.sum(-self.inNodes[0].output * np.log(self.inNodes[1].output + 1e-10)).reshape(self.outShape)
-
     def calcGradient(self):
         if self.inNodes[0] == self.inNodes[1]:
             thisInputGradient = -(np.log(self.inNodes[0].output + 1e-10) + 1).reshape((self.outSize, self.inSizes[0]))
@@ -30,3 +27,6 @@ class CrossEntropy(BaseLayer):
             for i in range(2):
                 inputGradients.append(reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradients[i]) for outNode in self.outNodes]))
                 self.inputGradients[self.inNodes[i].name] = inputGradients[i]
+
+    def forward(self, feedInput):
+        self.output = np.sum(-self.inNodes[0].output * np.log(self.inNodes[1].output + 1e-10)).reshape(self.outShape)

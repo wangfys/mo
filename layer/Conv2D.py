@@ -30,26 +30,10 @@ class Conv2D(BaseLayer):
                 self.init()
             self.forward({})
 
-    def init(self, jsonParam=None, thisParam=None):
-        if jsonParam == None:
-            self.K = self.K_init.initialize((self.kernelSize[0], self.inShapes[0][0], self.kernelSize[1], self.kernelSize[2]))
-            self.b = self.b_init.initialize(self.kernelSize[0])
-        else:
-            self.K = np.array(jsonParam[self.name]["K"])
-            self.b = np.array(jsonParam[self.name]["b"])
-        if Config["imperative"] and thisParam != None:
-            self.K = np.array(thisParam["K"])
-            self.b = np.array(thisParam["b"])
-
-    def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output)
-        outputTensor = np.zeros(self.outShape)
-        for n in range(self.outShape[0]):
-            for c in range(self.outShape[1]):
-                for h in range(self.outShape[2]):
-                    for w in range(self.outShape[3]):
-                        outputTensor[n, c, h, w] = np.sum(inputTensor[n, :, h:h+self.kernelSize[1], w:w+self.kernelSize[2]] * self.K[c, :]) + self.b[c]
-        self.output = outputTensor
+    def applyGradientDescent(self, applyFunc):
+        if not self.fix:
+            self.K.ravel()[:] = applyFunc(self.K.flatten(), self.paramGradients["K"].flatten())
+            self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
 
     def calcGradient(self):
         thisInputGradient = np.zeros((self.outSize, self.inSizes[0]))
@@ -77,7 +61,23 @@ class Conv2D(BaseLayer):
         self.paramGradients["K"] = KGradient
         self.paramGradients["b"] = bGradient
 
-        def applyGradientDescent(self, applyFunc):
-            if not self.fix:
-                self.K.ravel()[:] = applyFunc(self.K.flatten(), self.paramGradients["K"].flatten())
-                self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
+    def forward(self, feedInput):
+        inputTensor = np.array(self.inNodes[0].output)
+        outputTensor = np.zeros(self.outShape)
+        for n in range(self.outShape[0]):
+            for c in range(self.outShape[1]):
+                for h in range(self.outShape[2]):
+                    for w in range(self.outShape[3]):
+                        outputTensor[n, c, h, w] = np.sum(inputTensor[n, :, h:h+self.kernelSize[1], w:w+self.kernelSize[2]] * self.K[c, :]) + self.b[c]
+        self.output = outputTensor
+
+    def init(self, jsonParam=None, thisParam=None):
+        if jsonParam == None:
+            self.K = self.K_init.initialize((self.kernelSize[0], self.inShapes[0][0], self.kernelSize[1], self.kernelSize[2]))
+            self.b = self.b_init.initialize(self.kernelSize[0])
+        else:
+            self.K = np.array(jsonParam[self.name]["K"])
+            self.b = np.array(jsonParam[self.name]["b"])
+        if Config["imperative"] and thisParam != None:
+            self.K = np.array(thisParam["K"])
+            self.b = np.array(thisParam["b"])

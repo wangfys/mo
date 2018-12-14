@@ -14,13 +14,6 @@ class Softmax(BaseLayer):
         if Config["imperative"]:
             self.forward({})
 
-    def forward(self, feedInput):
-        tmpTensor = np.array(self.inNodes[0].output)
-        tmpTensor = np.exp(tmpTensor)
-        for i in range(self.outShape[0]):
-            tmpTensor[i] = tmpTensor[i] / np.sum(tmpTensor[i])
-        self.output = tmpTensor
-
     def calcGradient(self):
         inputVector = self.output.flatten()
         thisInputGradient = np.zeros((self.outSize, self.outSize))
@@ -35,3 +28,10 @@ class Softmax(BaseLayer):
                         thisInputGradient[J][K] = -inputVector[J] * inputVector[K]
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
+
+    def forward(self, feedInput):
+        tmpTensor = np.array(self.inNodes[0].output)
+        tmpTensor = np.exp(tmpTensor)
+        for i in range(self.outShape[0]):
+            tmpTensor[i] = tmpTensor[i] / np.sum(tmpTensor[i])
+        self.output = tmpTensor

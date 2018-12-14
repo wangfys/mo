@@ -29,23 +29,10 @@ class Dense(BaseLayer):
                 self.init()
             self.forward({})
 
-    def init(self, jsonParam=None, thisParam=None):
-        if jsonParam == None:
-            self.K = self.K_init.initialize((self.outShape[1], self.inShapes[0][1]))
-            self.b = self.b_init.initialize(self.outShape[1])
-        else:
-            self.K = np.array(jsonParam[self.name]["K"])
-            self.b = np.array(jsonParam[self.name]["b"])
-        if Config["imperative"] and thisParam != None:
-            self.K = np.array(thisParam["K"])
-            self.b = np.array(thisParam["b"])
-
-    def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output)
-        outputTensor = np.zeros(self.outShape)
-        for i in range(self.inShapes[0][0]):
-            outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
-        self.output = outputTensor.reshape(self.outShape)
+    def applyGradientDescent(self, applyFunc):
+        if not self.fix:
+            self.K.ravel()[:] = applyFunc(self.K.flatten(), self.paramGradients["K"].flatten())
+            self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
 
     def calcGradient(self):
         thisInputGradient = np.zeros((self.outSize, self.inSizes[0]))
@@ -63,7 +50,20 @@ class Dense(BaseLayer):
         self.paramGradients["K"] = KGradient
         self.paramGradients["b"] = bGradient
 
-    def applyGradientDescent(self, applyFunc):
-        if not self.fix:
-            self.K.ravel()[:] = applyFunc(self.K.flatten(), self.paramGradients["K"].flatten())
-            self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
+    def forward(self, feedInput):
+        inputTensor = np.array(self.inNodes[0].output)
+        outputTensor = np.zeros(self.outShape)
+        for i in range(self.inShapes[0][0]):
+            outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
+        self.output = outputTensor.reshape(self.outShape)
+
+    def init(self, jsonParam=None, thisParam=None):
+        if jsonParam == None:
+            self.K = self.K_init.initialize((self.outShape[1], self.inShapes[0][1]))
+            self.b = self.b_init.initialize(self.outShape[1])
+        else:
+            self.K = np.array(jsonParam[self.name]["K"])
+            self.b = np.array(jsonParam[self.name]["b"])
+        if Config["imperative"] and thisParam != None:
+            self.K = np.array(thisParam["K"])
+            self.b = np.array(thisParam["b"])
