@@ -14,11 +14,12 @@ class BaseOptimizer(object):
                 self.name = args["name"]
         else:
             className = self.__class__.__name__
-            if className in UnnamedNodes:
-                UnnamedNodes[className] += 1
+            if className in UnnamedNodesCount:
+                UnnamedNodesCount[className] += 1
             else:
-                UnnamedNodes[className] = 0
-            self.name = className + str(UnnamedNodes[className]) + "_auto"
+                UnnamedNodesCount[className] = 0
+            self.name = className + str(UnnamedNodesCount[className]) + "_auto"
+        Nodes[self.name] = self
         self.target = args["target"]
         self.learning_rate = args["learning_rate"]
         self.target.outNodes.append(self)

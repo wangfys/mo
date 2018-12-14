@@ -1,3 +1,3 @@
 Config = {"imperative": False}
-Nodes = set()
-UnnamedNodes = {}
+Nodes = {}
+UnnamedNodesCount = {}
