@@ -6,31 +6,40 @@ from ...globalvar import *
 
 class Add(BaseLayer):
     """
-    This is an add operator which can add several tensors. It works like reduce(np.add, datalist).
+    This is an add operator which can add two tensors. It works like np.add().
     """
     def __init__(self, **args):
-        BaseLayer.__init__(self, args)
-        self.outShape = getNumpyShape(reduce(np.add, [np.zeros(inNode.outShape) for inNode in self.inNodes]))
+        BaseLayer.__init__(self, args, inputNum=2)
+        self.outShape = getNumpyShape(np.zeros(self.inNodes[0].outShape)+np.zeros(self.inNodes[1].outShape))
         self.outSize = np.prod(self.outShape)
         if Config["imperative"]:
             self.forward({})
 
     def calcGradient(self):
         rowNumber = self.outSize
-        for i in range(len(self.inNodes)):
-            columnNumber = self.inNodes[i].outSize
-            thisInputGradient = np.zeros((rowNumber, columnNumber))
-            for j in range(columnNumber):
-                tmp = [np.zeros(inNode.outShape) for inNode in self.inNodes]
-                tmp[i].ravel()[j] = 1
-                tmp = reduce(np.add, tmp).reshape(self.outShape).flatten()
-                for k in np.argwhere(tmp!=0):
-                    thisInputGradient[k, j] = tmp[k]
-            inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
-            if self.inNodes[i].name in self.inputGradients:
-                self.inputGradients[self.inNodes[i].name] += inputGradient
-            else:
-                self.inputGradients[self.inNodes[i].name] = inputGradient
+        if self.inNodes[0] == self.inNodes[1]:
+            self.inputGradients[self.inNodes[0].name] = np.diag((2 * np.ones(self.inNodes[0].outShape)).flatten())
+        else:
+            columnNumber0 = self.inNodes[0].outSize
+            columnNumber1 = self.inNodes[1].outSize
+            thisInputGradient0 = np.zeros((rowNumber, columnNumber0))
+            thisInputGradient1 = np.zeros((rowNumber, columnNumber1))
+            for i in range(columnNumber0):
+                tmp = np.zeros(self.inNodes[0].outShape)
+                tmp.ravel()[i] = 1
+                tmp = tmp + self.inNodes[1].output
+                for j in np.argwhere(tmp!=0):
+                    thisInputGradient0[j, i] = tmp[j]
+            for i in range(columnNumber1):
+                tmp = np.zeros(self.inNodes[1].outShape)
+                tmp.ravel()[i] = 1
+                tmp = self.inNodes[0].output + tmp
+                for j in np.argwhere(tmp!=0):
+                    thisInputGradient1[j, i] = tmp[j]
+            inputGradient0 = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient0) for outNode in self.outNodes])
+            inputGradient1 = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient1) for outNode in self.outNodes])
+            self.inputGradients[self.inNodes[0].name] = inputGradient0
+            self.inputGradients[self.inNodes[1].name] = inputGradient1
 
     def forward(self, feedInput):
-        self.output = reduce(np.add, [inNode.output for inNode in self.inNodes]).reshape(self.outShape)
+        self.output = self.inNodes[0].output + self.inNodes[1].output
