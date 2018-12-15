@@ -32,6 +32,7 @@ class BaseOptimizer():
         self.target.execute(feedInput)
         for name in self.computeSequence:
             Nodes[name].outNodes = []
+            Nodes[name].inputGradients = {}
         self.target.outNodes = [self]
         for i in range(len(self.computeSequence), 0, -1):
             name = self.computeSequence[i - 1]
@@ -44,6 +45,7 @@ class BaseOptimizer():
         self.target.execute(feedInput)
         for name in self.computeSequence:
             Nodes[name].outNodes = []
+            Nodes[name].inputGradients = {}
         self.target.outNodes = [self]
         for i in range(len(self.computeSequence), 0, -1):
             name = self.computeSequence[i - 1]
