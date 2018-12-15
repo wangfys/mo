@@ -25,9 +25,6 @@ class BaseLayer(object):
         if inputNum != None and len(args["input"]) != inputNum:
             raise Exception("the number of inputs for '%s' is invalid" % self.name)
         self.inNodes = [inNode for inNode in args["input"]]
-        for inNode in self.inNodes:
-            if not self in inNode.outNodes:
-                inNode.outNodes.append(self)
         self.outNodes = []
         self.params = []
         self.inputGradients = {}
@@ -84,8 +81,3 @@ class BaseLayer(object):
     def initialize(self, jsonParam=None):
         for name in self.computeSequence:
             Nodes[name].init(jsonParam)
-
-
-
-
-

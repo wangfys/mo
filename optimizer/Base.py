@@ -21,18 +21,20 @@ class BaseOptimizer(object):
         Nodes[self.name] = self
         self.target = args["target"]
         self.learning_rate = args["learning_rate"]
-        self.target.outNodes.append(self)
         self.inputGradients = {self.target.name:np.diag(np.ones(self.target.outSize))}
         self.computeSequence = self.target.computeSequence.copy()
         self.params = []
-        if Config["imperative"]:
-            self.target.init()
-            self.target.execute({})
 
     def applyFunc(self):
         pass
 
     def minimize(self):
+        for name in self.computeSequence:
+            Nodes[name].outNodes = []
+        self.target.outNodes = [self]
         for i in range(len(self.computeSequence)-1, 0, -1):
             name = self.computeSequence[i]
             Nodes[name].backward(np.frompyfunc(self.applyFunc, 2, 1))
+            for inNode in Nodes[name].inNodes:
+                if not Nodes[name] in inNode.outNodes:
+                    inNode.outNodes.append(Nodes[name])
