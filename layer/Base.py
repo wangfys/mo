@@ -47,11 +47,22 @@ class BaseLayer():
         else:
             self.computeSequence = [self.name]
 
+    def __mul__(self, node):
+        from .operator import Multiply, Constant
+        if node.__class__.__base__ == BaseLayer:
+            return Multiply(input=[self, node])
+        else:
+            tmp = Constant(data=node)
+            return Multiply(input=[self, tmp])
+
     def __radd__(self, node):
         return self.__add__(node)
 
     def __repr__(self):
         return str(self.output)
+
+    def __rmul__(self, node):
+        return self.__mul__(node)
 
     def applyGradientDescent(self, applyFunc):
         pass
