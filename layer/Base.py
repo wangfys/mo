@@ -4,10 +4,18 @@ from functools import reduce
 from ..lib import mergeComputeSequence
 from ..globalvar import *
 
-class BaseLayer(object):
+class BaseLayer():
     """
     This is the base class of all layers.
     """
+    def __add__(self, node):
+        from .operator import Add, Constant
+        if node.__class__.__base__ == BaseLayer:
+            return Add(input=[self, node])
+        else:
+            tmp = Constant(data=node)
+            return Add(input=[self, tmp])
+
     def __init__(self, args, inputNum=None):
         if "name" in args:
             if args["name"] in Nodes:
@@ -38,6 +46,9 @@ class BaseLayer(object):
             self.computeSequence.append(self.name)
         else:
             self.computeSequence = [self.name]
+
+    def __radd__(self, node):
+        return self.__add__(node)
 
     def __repr__(self):
         return str(self.output)

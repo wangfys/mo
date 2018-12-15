@@ -1,7 +1,7 @@
 import numpy as np
 from ..globalvar import *
 
-class BaseOptimizer(object):
+class BaseOptimizer():
     """
     This is the base class of all optimizers.
     """
