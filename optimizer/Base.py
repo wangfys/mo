@@ -32,8 +32,8 @@ class BaseOptimizer():
         for name in self.computeSequence:
             Nodes[name].outNodes = []
         self.target.outNodes = [self]
-        for i in range(len(self.computeSequence)-1, 0, -1):
-            name = self.computeSequence[i]
+        for i in range(len(self.computeSequence), 0, -1):
+            name = self.computeSequence[i - 1]
             Nodes[name].backward(np.frompyfunc(self.applyFunc, 2, 1))
             for inNode in Nodes[name].inNodes:
                 if not Nodes[name] in inNode.outNodes:

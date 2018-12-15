@@ -1,4 +1,5 @@
 import numpy as np
+from functools import reduce
 from .Base import BaseLayer
 from ..globalvar import *
 
@@ -17,6 +18,11 @@ class Input(BaseLayer):
             if (self.input.shape != self.outShape).any():
                 raise Exception("data size error in '%s'" % self.name)
             self.forward({})
+
+    def calcGradient(self):
+        thisInputGradient = np.diag(np.ones((self.outSize,)))
+        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+        self.inputGradients[""] = inputGradient
 
     def forward(self, feedInput):
         if not Config["imperative"] or feedInput != {}:
