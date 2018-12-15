@@ -28,7 +28,20 @@ class BaseOptimizer():
     def applyFunc(self):
         pass
 
-    def minimize(self):
+    def calcGradients(self, feedInput=None):
+        self.target.execute(feedInput)
+        for name in self.computeSequence:
+            Nodes[name].outNodes = []
+        self.target.outNodes = [self]
+        for i in range(len(self.computeSequence), 0, -1):
+            name = self.computeSequence[i - 1]
+            Nodes[name].calcGradient()
+            for inNode in Nodes[name].inNodes:
+                if not Nodes[name] in inNode.outNodes:
+                    inNode.outNodes.append(Nodes[name])
+
+    def minimize(self, feedInput=None):
+        self.target.execute(feedInput)
         for name in self.computeSequence:
             Nodes[name].outNodes = []
         self.target.outNodes = [self]
