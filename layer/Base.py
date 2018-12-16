@@ -55,14 +55,33 @@ class BaseLayer():
             tmp = Constant(data=node)
             return Multiply(input=[self, tmp])
 
+    def __neg__(self):
+        from .operator import Negative
+        return Negative(input=[self])
+
     def __radd__(self, node):
         return self.__add__(node)
 
     def __repr__(self):
-        return str(self.output)
+        return "%s: %s" % (self.name, self.output.__repr__())
 
     def __rmul__(self, node):
         return self.__mul__(node)
+
+    def __rsub__(self, node):
+        from .operator import Add, Negative, Constant
+        tmp1 = Constant(data=node)
+        tmp2 = Negative(input=[self])
+        return Add(input=[tmp1, tmp2])
+
+    def __sub__(self, node):
+        from .operator import Add, Negative, Constant
+        if node.__class__.__base__ == BaseLayer:
+            tmp = Negative(input=[node])
+            return Add(input=[self, tmp])
+        else:
+            tmp = Constant(data=-node)
+            return Add(input=[self, tmp])
 
     def applyGradientDescent(self, applyFunc):
         pass
