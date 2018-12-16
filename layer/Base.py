@@ -40,6 +40,7 @@ class BaseLayer():
         self.inShapes = [inNode.outShape for inNode in self.inNodes]
         self.inSizes = [np.prod(inNode.outShape) for inNode in self.inNodes]
         self.fix = args["fix"] if "fix" in args else False
+        self.isTrain = args["isTrain"] if "isTrain" in args else False
         self.output = None
         if len(self.inNodes) > 0:
             self.computeSequence = reduce(mergeComputeSequence, [inNode.computeSequence for inNode in self.inNodes]).copy()
