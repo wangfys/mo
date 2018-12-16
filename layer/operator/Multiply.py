@@ -6,7 +6,7 @@ from ...globalvar import *
 
 class Multiply(BaseLayer):
     """
-    This is an add operator which can multiply two tensors. It works like np.multiply().
+    This is an multiply operator which can multiply two tensors. It works like np.multiply().
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args, inputNum=2)
