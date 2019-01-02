@@ -45,7 +45,7 @@ class Conv2D(BaseLayer):
                 for h in range(self.outShape[2]):
                     for w in range(self.outShape[3]):
                         tmpInputGradient = np.zeros(self.inShapes[0], dtype=Dtype)
-                        tmpKGradient = np.zeros((self.kernelSize[0], self.inShapes[0][0], self.kernelSize[1], self.kernelSize[2]), dtype=Dtype)
+                        tmpKGradient = np.zeros((self.kernelSize[0], self.inShapes[0][1], self.kernelSize[1], self.kernelSize[2]), dtype=Dtype)
                         tmpBGradient = np.zeros(self.kernelSize[0], dtype=Dtype)
                         tmpInputGradient[n, :, h:h+self.kernelSize[1], w:w+self.kernelSize[2]] = self.K[c, :]
                         tmpKGradient[c, :] = self.inNodes[0].output[n, :, h:h+self.kernelSize[1], w:w+self.kernelSize[2]]
