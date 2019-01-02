@@ -14,20 +14,20 @@ class Input(BaseLayer):
         self.outShape = np.array(args["shape"])
         self.outSize = np.prod(self.outShape)
         if Config["imperative"]:
-            self.input = np.array(args["data"])
+            self.input = np.array(args["data"], dtype=Dtype)
             if (self.input.shape != self.outShape).any():
                 raise Exception("data size error in '%s'" % self.name)
             self.forward({})
 
     def calcGradient(self):
-        thisInputGradient = np.diag(np.ones((self.outSize,)))
+        thisInputGradient = np.diag(np.ones((self.outSize,), dtype=Dtype))
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[""] = inputGradient
 
     def forward(self, feedInput):
         if not Config["imperative"] or feedInput != {}:
             if self.name in feedInput:
-                self.input = np.array(feedInput[self.name])
+                self.input = np.array(feedInput[self.name], dtype=Dtype)
                 if (self.input.shape != self.outShape).any():
                     raise Exception("data size error in '%s'" % self.name)
             else:

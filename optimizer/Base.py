@@ -21,7 +21,7 @@ class BaseOptimizer():
         Nodes[self.name] = self
         self.target = args["target"]
         self.learning_rate = args["learning_rate"]
-        self.inputGradients = {self.target.name:np.diag(np.ones(self.target.outSize))}
+        self.inputGradients = {self.target.name:np.diag(np.ones(self.target.outSize, dtype=Dtype))}
         self.computeSequence = self.target.computeSequence.copy()
         self.params = []
 

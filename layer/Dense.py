@@ -35,9 +35,9 @@ class Dense(BaseLayer):
             self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
 
     def calcGradient(self):
-        thisInputGradient = np.zeros((self.outSize, self.inSizes[0]))
-        thisKGradient = np.zeros((self.outSize, self.K.size))
-        thisBGradient = np.zeros((self.outSize, self.b.size))
+        thisInputGradient = np.zeros((self.outSize, self.inSizes[0]), dtype=Dtype)
+        thisKGradient = np.zeros((self.outSize, self.K.size), dtype=Dtype)
+        thisBGradient = np.zeros((self.outSize, self.b.size), dtype=Dtype)
         for i in range(self.inShapes[0][0]):
             thisInputGradient[i*self.K.shape[0]:(i+1)*self.K.shape[0], i*self.K.shape[1]:(i+1)*self.K.shape[1]] = self.K
             thisBGradient[i*self.outShape[1]:(i+1)*self.outShape[1]] = np.diag(np.ones((self.b.size)))
@@ -51,8 +51,8 @@ class Dense(BaseLayer):
         self.paramGradients["b"] = bGradient
 
     def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output)
-        outputTensor = np.zeros(self.outShape)
+        inputTensor = np.array(self.inNodes[0].output, dtype=Dtype)
+        outputTensor = np.zeros(self.outShape, dtype=Dtype)
         for i in range(self.inShapes[0][0]):
             outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
         self.output = outputTensor.reshape(self.outShape)
@@ -62,8 +62,8 @@ class Dense(BaseLayer):
             self.K = self.K_init.initialize((self.outShape[1], self.inShapes[0][1]))
             self.b = self.b_init.initialize(self.outShape[1])
         else:
-            self.K = np.array(jsonParam[self.name]["K"])
-            self.b = np.array(jsonParam[self.name]["b"])
+            self.K = np.array(jsonParam[self.name]["K"], dtype=Dtype)
+            self.b = np.array(jsonParam[self.name]["b"], dtype=Dtype)
         if Config["imperative"] and thisParam != None:
-            self.K = np.array(thisParam["K"])
-            self.b = np.array(thisParam["b"])
+            self.K = np.array(thisParam["K"], dtype=Dtype)
+            self.b = np.array(thisParam["b"], dtype=Dtype)

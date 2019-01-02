@@ -21,9 +21,9 @@ class Mean(BaseLayer):
     def calcGradient(self):
         rowNumber = self.outSize
         columnNumber = self.inSizes[0]
-        thisInputGradient = np.zeros((rowNumber, columnNumber))
+        thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Dtype)
         for i in range(columnNumber):
-            tmp = np.zeros(self.inShapes[0])
+            tmp = np.zeros(self.inShapes[0], dtype=Dtype)
             tmp.ravel()[i] = 1
             tmp = np.mean(tmp, axis=self.axis).flatten()
             for j in np.argwhere(tmp!=0):
@@ -32,5 +32,5 @@ class Mean(BaseLayer):
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output)
+        inputTensor = np.array(self.inNodes[0].output, dtype=Dtype)
         self.output = np.mean(inputTensor, axis=self.axis).reshape(self.outShape)

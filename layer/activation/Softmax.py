@@ -16,7 +16,7 @@ class Softmax(BaseLayer):
 
     def calcGradient(self):
         inputVector = self.output.flatten()
-        thisInputGradient = np.zeros((self.outSize, self.outSize))
+        thisInputGradient = np.zeros((self.outSize, self.outSize), dtype=Dtype)
         for i in range(self.outShape[0]):
             for j in range(self.outSize // self.outShape[0]):
                 for k in range(self.outSize // self.outShape[0]):
@@ -30,7 +30,7 @@ class Softmax(BaseLayer):
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):
-        tmpTensor = np.array(self.inNodes[0].output)
+        tmpTensor = np.array(self.inNodes[0].output, dtype=Dtype)
         tmpTensor = np.exp(tmpTensor)
         for i in range(self.outShape[0]):
             tmpTensor[i] = tmpTensor[i] / np.sum(tmpTensor[i])

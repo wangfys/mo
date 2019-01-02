@@ -36,17 +36,17 @@ class Conv2D(BaseLayer):
             self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
 
     def calcGradient(self):
-        thisInputGradient = np.zeros((self.outSize, self.inSizes[0]))
-        thisKGradient = np.zeros((self.outSize, self.K.size))
-        thisBGradient = np.zeros((self.outSize, self.b.size))
+        thisInputGradient = np.zeros((self.outSize, self.inSizes[0]), dtype=Dtype)
+        thisKGradient = np.zeros((self.outSize, self.K.size), dtype=Dtype)
+        thisBGradient = np.zeros((self.outSize, self.b.size), dtype=Dtype)
         index = 0
         for n in range(self.outShape[0]):
             for c in range(self.outShape[1]):
                 for h in range(self.outShape[2]):
                     for w in range(self.outShape[3]):
-                        tmpInputGradient = np.zeros(self.inShapes[0])
-                        tmpKGradient = np.zeros((self.kernelSize[0], self.inShapes[0][0], self.kernelSize[1], self.kernelSize[2]))
-                        tmpBGradient = np.zeros(self.kernelSize[0])
+                        tmpInputGradient = np.zeros(self.inShapes[0], dtype=Dtype)
+                        tmpKGradient = np.zeros((self.kernelSize[0], self.inShapes[0][0], self.kernelSize[1], self.kernelSize[2]), dtype=Dtype)
+                        tmpBGradient = np.zeros(self.kernelSize[0], dtype=Dtype)
                         tmpInputGradient[n, :, h:h+self.kernelSize[1], w:w+self.kernelSize[2]] = self.K[c, :]
                         tmpKGradient[c, :] = self.inNodes[0].output[n, :, h:h+self.kernelSize[1], w:w+self.kernelSize[2]]
                         tmpBGradient[c] = 1
@@ -62,8 +62,8 @@ class Conv2D(BaseLayer):
         self.paramGradients["b"] = bGradient
 
     def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output)
-        outputTensor = np.zeros(self.outShape)
+        inputTensor = np.array(self.inNodes[0].output, dtype=Dtype)
+        outputTensor = np.zeros(self.outShape, dtype=Dtype)
         for n in range(self.outShape[0]):
             for c in range(self.outShape[1]):
                 for h in range(self.outShape[2]):
@@ -76,8 +76,8 @@ class Conv2D(BaseLayer):
             self.K = self.K_init.initialize((self.kernelSize[0], self.inShapes[0][1], self.kernelSize[1], self.kernelSize[2]))
             self.b = self.b_init.initialize(self.kernelSize[0])
         else:
-            self.K = np.array(jsonParam[self.name]["K"])
-            self.b = np.array(jsonParam[self.name]["b"])
+            self.K = np.array(jsonParam[self.name]["K"], dtype=Dtype)
+            self.b = np.array(jsonParam[self.name]["b"], dtype=Dtype)
         if Config["imperative"] and thisParam != None:
-            self.K = np.array(thisParam["K"])
-            self.b = np.array(thisParam["b"])
+            self.K = np.array(thisParam["K"], dtype=Dtype)
+            self.b = np.array(thisParam["b"], dtype=Dtype)
