@@ -13,7 +13,7 @@ For any layers in `mo.layers`, `mo.activation`, `mo.loss`, `mo.normalizer` and a
 
 #### 2.2.0 Basic
 
-Mo provides `mo.layers.Conv2D`, `mo.layers.Dense`, `mo.layers.Flatten`, `mo.layers.Input` layers.
+Mo provides `mo.layers.Conv2D`, `mo.layers.Dense`, `mo.layers.Flatten`, `mo.layers.Input`, `mo.layers.MaxPool` layers.
 
 #### 2.2.1 Activation
 
