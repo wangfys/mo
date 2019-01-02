@@ -1,5 +1,6 @@
 import numpy as np
 from .Base import BaseInitializer
+from ..globalvar import *
 
 class UniformRandom(BaseInitializer):
     """
@@ -13,4 +14,4 @@ class UniformRandom(BaseInitializer):
         self.high = high
 
     def initialize(self, shape):
-        return np.random.uniform(self.low, self.high, shape)
+        return np.random.uniform(self.low, self.high, shape).astype(Dtype)

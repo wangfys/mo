@@ -1,5 +1,6 @@
 import numpy as np
 from .Base import BaseInitializer
+from ..globalvar import *
 
 class NormalRandom(BaseInitializer):
     """
@@ -13,4 +14,4 @@ class NormalRandom(BaseInitializer):
         self.scale = scale
 
     def initialize(self, shape):
-        return np.random.normal(self.loc, self.scale, shape)
+        return np.random.normal(self.loc, self.scale, shape).astype(Dtype)
