@@ -17,7 +17,7 @@ Mo provides `mo.layers.Conv2D`, `mo.layers.Dense`, `mo.layers.Flatten`, `mo.laye
 
 #### 2.2.1 Activation
 
-Mo provides `mo.activation.LeakyRelu`, `mo.activation.Sigmoid`, `mo.activation.Softmax` for activation layers.
+Mo provides `mo.activation.LeakyReLU`, `mo.activation.Sigmoid`, `mo.activation.Softmax` for activation layers.
 
 #### 2.2.2 Loss
 
