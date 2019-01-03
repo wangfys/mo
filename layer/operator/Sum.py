@@ -21,13 +21,16 @@ class Sum(BaseLayer):
     def calcGradient(self):
         rowNumber = self.outSize
         columnNumber = self.inSizes[0]
-        thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Dtype)
-        for i in range(columnNumber):
-            tmp = np.zeros(self.inShapes[0], dtype=Dtype)
-            tmp.ravel()[i] = 1
-            tmp = np.sum(tmp, axis=self.axis).flatten()
-            for j in np.argwhere(tmp!=0):
-                thisInputGradient[j, i] = tmp[j]
+        if self.axis == None:
+            thisInputGradient = np.ones((rowNumber, columnNumber), dtype=Dtype)
+        else:
+            thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Dtype)
+            for i in range(columnNumber):
+                tmp = np.zeros(self.inShapes[0], dtype=Dtype)
+                tmp.ravel()[i] = 1
+                tmp = np.sum(tmp, axis=self.axis).flatten()
+                for j in np.argwhere(tmp!=0):
+                    thisInputGradient[j, i] = tmp[j]
         inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
