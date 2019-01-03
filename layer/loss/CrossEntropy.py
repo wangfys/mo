@@ -23,13 +23,13 @@ class CrossEntropy(BaseLayer):
     def calcGradient(self):
         if self.inNodes[0] == self.inNodes[1]:
             thisInputGradient = -(np.log(self.inNodes[0].output + self.epsilon) + 1).reshape((self.outSize, self.inSizes[0]))
-            inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+            inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
             self.inputGradients[self.inNodes[0].name] = inputGradient
         else:
             thisInputGradients = [-np.log(self.inNodes[1].output + self.epsilon).reshape((self.outSize, self.inSizes[0])), (-self.inNodes[0].output / (self.inNodes[1].output + self.epsilon)).reshape((self.outSize, self.inSizes[1]))]
             inputGradients = []
             for i in range(2):
-                inputGradients.append(reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradients[i]) for outNode in self.outNodes]))
+                inputGradients.append(np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradients[i]))
                 self.inputGradients[self.inNodes[i].name] = inputGradients[i]
 
     def forward(self, feedInput):

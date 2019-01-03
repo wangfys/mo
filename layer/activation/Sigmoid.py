@@ -17,7 +17,7 @@ class Sigmoid(BaseLayer):
     def calcGradient(self):
         inputVector = (self.output * (1 - self.output)).flatten()
         thisInputGradient = np.diag(inputVector)
-        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):

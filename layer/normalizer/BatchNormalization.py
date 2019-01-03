@@ -53,9 +53,9 @@ class BatchNormalization(BaseLayer):
         thisInputGradient *= self.scale / variance
         thisScaleGradient = (inputVector - mean) / sigma
         thisShiftGradient = np.ones((self.outSize,), dtype=Dtype)
-        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
-        scaleGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisScaleGradient) for outNode in self.outNodes])
-        shiftGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisShiftGradient) for outNode in self.outNodes])
+        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
+        scaleGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisScaleGradient)
+        shiftGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisShiftGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient
         self.paramGradients["scale"] = scaleGradient
         self.paramGradients["shift"] = shiftGradient

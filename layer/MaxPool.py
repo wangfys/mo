@@ -39,7 +39,7 @@ class MaxPool(BaseLayer):
                                 if self.output[n][c][i][j] == inputTensor[n][c][i*self.ksize+x][j*self.ksize+y]:
                                     if inputTensorIndex[n][c][i*self.ksize+x][j*self.ksize+y] != -1:
                                         thisInputGradient[thisInputGradientIndex][inputTensorIndex[n][c][i*self.ksize+x][j*self.ksize+y]] = 1
-        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):

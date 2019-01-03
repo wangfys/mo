@@ -20,7 +20,7 @@ class Log(BaseLayer):
     def calcGradient(self):
         inputVector = (1 / (self.inNodes[0].output + self.epsilon)).flatten()
         thisInputGradient = np.diag(inputVector)
-        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):

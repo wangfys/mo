@@ -16,7 +16,7 @@ class Negative(BaseLayer):
 
     def calcGradient(self):
         thisInputGradient = np.diag(np.full(self.outShape, -1).flatten())
-        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):

@@ -36,8 +36,8 @@ class Multiply(BaseLayer):
                 tmp = self.inNodes[0].output * tmp
                 for j in np.argwhere(tmp!=0):
                     thisInputGradient1[j, i] = tmp[j]
-            inputGradient0 = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient0) for outNode in self.outNodes])
-            inputGradient1 = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient1) for outNode in self.outNodes])
+            inputGradient0 = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient0)
+            inputGradient1 = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient1)
             self.inputGradients[self.inNodes[0].name] = inputGradient0
             self.inputGradients[self.inNodes[1].name] = inputGradient1
 
