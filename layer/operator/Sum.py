@@ -22,11 +22,11 @@ class Sum(BaseLayer):
         rowNumber = self.outSize
         columnNumber = self.inSizes[0]
         if self.axis == None:
-            thisInputGradient = np.ones((rowNumber, columnNumber), dtype=Dtype)
+            thisInputGradient = np.ones((rowNumber, columnNumber), dtype=Config["Dtype"])
         else:
-            thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Dtype)
+            thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Config["Dtype"])
             for i in range(columnNumber):
-                tmp = np.zeros(self.inShapes[0], dtype=Dtype)
+                tmp = np.zeros(self.inShapes[0], dtype=Config["Dtype"])
                 tmp.ravel()[i] = 1
                 tmp = np.sum(tmp, axis=self.axis).flatten()
                 for j in np.argwhere(tmp!=0):

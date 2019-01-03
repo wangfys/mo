@@ -21,7 +21,7 @@ class BaseOptimizer():
         Nodes[self.name] = self
         self.target = args["target"]
         self.learning_rate = args["learning_rate"]
-        self.inputGradients = {self.target.name:np.diag(np.ones(self.target.outSize, dtype=Dtype))}
+        self.inputGradients = {self.target.name:np.diag(np.ones(self.target.outSize, dtype=Config["Dtype"]))}
         self.computeSequence = self.target.computeSequence.copy()
         self.params = []
 
@@ -49,7 +49,14 @@ class BaseOptimizer():
         self.target.outNodes = [self]
         for i in range(len(self.computeSequence), 0, -1):
             name = self.computeSequence[i - 1]
-            Nodes[name].backward(np.frompyfunc(self.applyFunc, 2, 1))
+            if Config["Perf"]:
+                import time
+                start = time.time()
+                Nodes[name].backward(np.frompyfunc(self.applyFunc, 2, 1))
+                end = time.time()
+                print(name, "backward", end-start)
+            else:
+                Nodes[name].backward(np.frompyfunc(self.applyFunc, 2, 1))
             for inNode in Nodes[name].inNodes:
                 if not Nodes[name] in inNode.outNodes:
                     inNode.outNodes.append(Nodes[name])

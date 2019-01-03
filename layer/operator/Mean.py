@@ -21,9 +21,9 @@ class Mean(BaseLayer):
     def calcGradient(self):
         rowNumber = self.outSize
         columnNumber = self.inSizes[0]
-        thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Dtype)
+        thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Config["Dtype"])
         for i in range(columnNumber):
-            tmp = np.zeros(self.inShapes[0], dtype=Dtype)
+            tmp = np.zeros(self.inShapes[0], dtype=Config["Dtype"])
             tmp.ravel()[i] = 1
             tmp = np.mean(tmp, axis=self.axis).flatten()
             for j in np.argwhere(tmp!=0):

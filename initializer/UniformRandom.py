@@ -14,4 +14,4 @@ class UniformRandom(BaseInitializer):
         self.high = high
 
     def initialize(self, shape):
-        return np.random.uniform(self.low, self.high, shape).astype(Dtype)
+        return np.random.uniform(self.low, self.high, shape).astype(Config["Dtype"])

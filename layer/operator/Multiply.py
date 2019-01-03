@@ -22,16 +22,16 @@ class Multiply(BaseLayer):
         else:
             columnNumber0 = self.inNodes[0].outSize
             columnNumber1 = self.inNodes[1].outSize
-            thisInputGradient0 = np.zeros((rowNumber, columnNumber0), dtype=Dtype)
-            thisInputGradient1 = np.zeros((rowNumber, columnNumber1), dtype=Dtype)
+            thisInputGradient0 = np.zeros((rowNumber, columnNumber0), dtype=Config["Dtype"])
+            thisInputGradient1 = np.zeros((rowNumber, columnNumber1), dtype=Config["Dtype"])
             for i in range(columnNumber0):
-                tmp = np.zeros(self.inNodes[0].outShape, dtype=Dtype)
+                tmp = np.zeros(self.inNodes[0].outShape, dtype=Config["Dtype"])
                 tmp.ravel()[i] = 1
                 tmp = tmp * self.inNodes[1].output
                 for j in np.argwhere(tmp!=0):
                     thisInputGradient0[j, i] = tmp[j]
             for i in range(columnNumber1):
-                tmp = np.zeros(self.inNodes[1].outShape, dtype=Dtype)
+                tmp = np.zeros(self.inNodes[1].outShape, dtype=Config["Dtype"])
                 tmp.ravel()[i] = 1
                 tmp = self.inNodes[0].output * tmp
                 for j in np.argwhere(tmp!=0):

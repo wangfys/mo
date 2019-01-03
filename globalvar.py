@@ -1,5 +1,5 @@
 import numpy as np
-Config = {"imperative": False}
+
+Config = {"Dtype": np.float16, "imperative": False, "Perf": False}
 Nodes = {}
 UnnamedNodesCount = {}
-Dtype = np.float16

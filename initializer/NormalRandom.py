@@ -14,4 +14,4 @@ class NormalRandom(BaseInitializer):
         self.scale = scale
 
     def initialize(self, shape):
-        return np.random.normal(self.loc, self.scale, shape).astype(Dtype)
+        return np.random.normal(self.loc, self.scale, shape).astype(Config["Dtype"])

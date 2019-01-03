@@ -16,11 +16,11 @@ class BatchNormalization(BaseLayer):
         self.outShape = np.array(self.inShapes[0])
         self.outSize = np.prod(self.outShape)
         self.params = ["scale", "shift", "batchSeen", "meanSeen", "varianceSeen"]
-        self.scale = np.array([1], dtype=Dtype)
-        self.shift = np.array([0], dtype=Dtype)
+        self.scale = np.array([1], dtype=Config["Dtype"])
+        self.shift = np.array([0], dtype=Config["Dtype"])
         self.batchSeen = np.array([0])
-        self.meanSeen = np.array([0], dtype=Dtype)
-        self.varianceSeen = np.array([0], dtype=Dtype)
+        self.meanSeen = np.array([0], dtype=Config["Dtype"])
+        self.varianceSeen = np.array([0], dtype=Config["Dtype"])
         if Config["imperative"]:
             self.forward({})
 
@@ -36,8 +36,8 @@ class BatchNormalization(BaseLayer):
         mean = np.mean(inputVector)
         variance = np.var(inputVector) + self.epsilon
         sigma = np.sqrt(variance)
-        varGradient = np.zeros((self.outSize,), dtype=Dtype)
-        thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Dtype)
+        varGradient = np.zeros((self.outSize,), dtype=Config["Dtype"])
+        thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Config["Dtype"])
         for i in range(rowNumber):
             for j in range(columnNumber):
                 if i == j:
@@ -52,7 +52,7 @@ class BatchNormalization(BaseLayer):
                     thisInputGradient[i][j] = -sigma / self.outSize -(inputVector[i] - mean) * varGradient[j] / (2 * sigma)
         thisInputGradient *= self.scale / variance
         thisScaleGradient = (inputVector - mean) / sigma
-        thisShiftGradient = np.ones((self.outSize,), dtype=Dtype)
+        thisShiftGradient = np.ones((self.outSize,), dtype=Config["Dtype"])
         inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
         scaleGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisScaleGradient)
         shiftGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisShiftGradient)

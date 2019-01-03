@@ -19,7 +19,7 @@ class Flatten(BaseLayer):
 
     def calcGradient(self):
         columnNumber = self.inSizes[0]
-        inputVector = np.ones([columnNumber], dtype=Dtype)
+        inputVector = np.ones([columnNumber], dtype=Config["Dtype"])
         inputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
 

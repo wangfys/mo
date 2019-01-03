@@ -10,7 +10,7 @@ class Constant(BaseLayer):
     """
     def __init__(self, data):
         BaseLayer.__init__(self, {"input": []}, inputNum=0)
-        self.input = np.array(data, dtype=Dtype)
+        self.input = np.array(data, dtype=Config["Dtype"])
         self.outShape = getNumpyShape(self.input)
         self.outSize = np.prod(self.outShape)
         if Config["imperative"]:

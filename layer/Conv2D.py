@@ -5,7 +5,7 @@ from .. import initializer
 from ..globalvar import *
 
 def img2row(inputTensor, tensorShape, kernelShape):
-    rows = np.zeros((tensorShape[0]*tensorShape[2]*tensorShape[3], kernelShape[1]*kernelShape[2]*kernelShape[3]), dtype=Dtype)
+    rows = np.zeros((tensorShape[0]*tensorShape[2]*tensorShape[3], kernelShape[1]*kernelShape[2]*kernelShape[3]), dtype=Config["Dtype"])
     count = -1
     for n in range(tensorShape[0]):
         for h in range(tensorShape[2]):
@@ -57,15 +57,15 @@ class Conv2D(BaseLayer):
         inputGradient = np.pad(inputGradient, ((0, 0), (0, 0), (self.kernelSize[1] - 1, self.kernelSize[1] - 1), (self.kernelSize[2] - 1, self.kernelSize[2] - 1)), "constant")
         flippedK = self.K[:,:,::-1,::-1].swapaxes(0, 1)
         inputGradient = row2img(np.dot(img2row(inputGradient, self.inShapes[0], flippedK.shape), flippedK.reshape((flippedK.shape[0], -1)).T), self.inShapes[0]).flatten()
-        KGradient = np.zeros((self.K.size,), dtype=Dtype)
+        KGradient = np.zeros((self.K.size,), dtype=Config["Dtype"])
         colTensor = self.rowTensor.T
         colTensor = np.concatenate([colTensor for _ in range(self.outShape[1])], axis=1)
         for i in range(np.prod(self.K.shape[1:])):
             tmp = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), colTensor[i])
             KGradient[i::np.prod(self.K.shape[1:])] = tmp / self.outShape[1]
-        bGradient = np.zeros((self.b.size,), dtype=Dtype)
+        bGradient = np.zeros((self.b.size,), dtype=Config["Dtype"])
         for i in range(self.b.size):
-            tmp = np.zeros(self.outShape, dtype=Dtype)
+            tmp = np.zeros(self.outShape, dtype=Config["Dtype"])
             tmp[:,i,:,:] = 1
             bGradient[i] = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), tmp.flatten())
         self.inputGradients[self.inNodes[0].name] = inputGradient.reshape((1, -1))
@@ -85,8 +85,8 @@ class Conv2D(BaseLayer):
             self.K = self.K_init.initialize((self.kernelSize[0], self.inShapes[0][1], self.kernelSize[1], self.kernelSize[2]))
             self.b = self.b_init.initialize(self.kernelSize[0])
         else:
-            self.K = np.array(jsonParam[self.name]["K"], dtype=Dtype)
-            self.b = np.array(jsonParam[self.name]["b"], dtype=Dtype)
+            self.K = np.array(jsonParam[self.name]["K"], dtype=Config["Dtype"])
+            self.b = np.array(jsonParam[self.name]["b"], dtype=Config["Dtype"])
         if Config["imperative"] and thisParam != None:
-            self.K = np.array(thisParam["K"], dtype=Dtype)
-            self.b = np.array(thisParam["b"], dtype=Dtype)
+            self.K = np.array(thisParam["K"], dtype=Config["Dtype"])
+            self.b = np.array(thisParam["b"], dtype=Config["Dtype"])
