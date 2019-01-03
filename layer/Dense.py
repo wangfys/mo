@@ -55,7 +55,7 @@ class Dense(BaseLayer):
         outputTensor = np.zeros(self.outShape, dtype=Dtype)
         for i in range(self.inShapes[0][0]):
             outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
-        self.output = outputTensor.reshape(self.outShape)
+        self.output = outputTensor
 
     def init(self, jsonParam=None, thisParam=None):
         if jsonParam == None:
