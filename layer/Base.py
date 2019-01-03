@@ -97,7 +97,14 @@ class BaseLayer():
 
     def execute(self, feedInput):
         for name in self.computeSequence:
-            Nodes[name].forward(feedInput)
+            if Config["Perf"]:
+                import time
+                start = time.time()
+                Nodes[name].forward(feedInput)
+                end = time.time()
+                print(name, "forward", end-start)
+            else:
+                Nodes[name].forward(feedInput)
 
     def getAllParams(self, returnJSON=True):
         result = {}
