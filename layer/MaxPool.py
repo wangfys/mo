@@ -26,8 +26,8 @@ class MaxPool(BaseLayer):
         rowNumber = self.outSize
         thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Dtype)
         inputTensorIndex = np.arange(self.inNodes[0].outSize).reshape(self.inShapes[0])
-        inputTensor = np.pad(self.inNodes[0].output, ((0, 0),(0, 0), (self.pad_top, self.pad_bottom),(self.pad_left, self.pad_right)), "constant")
-        inputTensorIndex = np.pad(inputTensorIndex, ((0, 0),(0, 0), (self.pad_top, self.pad_bottom),(self.pad_left, self.pad_right)), "constant", constant_values=-1)
+        inputTensor = np.pad(self.inNodes[0].output, ((0, 0), (0, 0), (self.pad_top, self.pad_bottom), (self.pad_left, self.pad_right)), "constant")
+        inputTensorIndex = np.pad(inputTensorIndex, ((0, 0), (0, 0), (self.pad_top, self.pad_bottom), (self.pad_left, self.pad_right)), "constant", constant_values=-1)
         thisInputGradientIndex = -1
         for n in range(self.outShape[0]):
             for c in range(self.outShape[1]):
