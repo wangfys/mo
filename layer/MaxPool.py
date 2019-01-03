@@ -22,29 +22,25 @@ class MaxPool(BaseLayer):
             self.forward({})
 
     def calcGradient(self):
-        columnNumber = self.inSizes[0]
-        rowNumber = self.outSize
-        thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Dtype)
+        inputGradient = np.zeros((self.inSizes[0],), dtype=Config["Dtype"])
         inputTensorIndex = np.arange(self.inNodes[0].outSize).reshape(self.inShapes[0])
         inputTensor = np.pad(self.inNodes[0].output, ((0, 0), (0, 0), (self.pad_top, self.pad_bottom), (self.pad_left, self.pad_right)), "constant")
         inputTensorIndex = np.pad(inputTensorIndex, ((0, 0), (0, 0), (self.pad_top, self.pad_bottom), (self.pad_left, self.pad_right)), "constant", constant_values=-1)
-        thisInputGradientIndex = -1
+        count = -1
         for n in range(self.outShape[0]):
             for c in range(self.outShape[1]):
                 for i in range(self.outShape[2]):
                     for j in range(self.outShape[3]):
-                        thisInputGradientIndex += 1
-                        for x in range(self.ksize):
-                            for y in range(self.ksize):
-                                if self.output[n][c][i][j] == inputTensor[n][c][i*self.ksize+x][j*self.ksize+y]:
-                                    if inputTensorIndex[n][c][i*self.ksize+x][j*self.ksize+y] != -1:
-                                        thisInputGradient[thisInputGradientIndex][inputTensorIndex[n][c][i*self.ksize+x][j*self.ksize+y]] = 1
-        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
+                        count += 1
+                        maxIndex = np.argmax(inputTensor[n,c,i*self.ksize:(i+1)*self.ksize,j*self.ksize:(j+1)*self.ksize])
+                        inputIndex = inputTensorIndex[n,c,i*self.ksize:(i+1)*self.ksize,j*self.ksize:(j+1)*self.ksize].flatten()[maxIndex]
+                        if inputIndex != -1:
+                            inputGradient[inputIndex] += reduce(np.add, [outNode.inputGradients[self.name][0][count] for outNode in self.outNodes])
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):
         inputTensor = np.pad(self.inNodes[0].output, ((0, 0),(0, 0), (self.pad_top, self.pad_bottom),(self.pad_left, self.pad_right)), "constant")
-        outputTensor = np.zeros(self.outShape, dtype=Dtype)
+        outputTensor = np.zeros(self.outShape, dtype=Config["Dtype"])
         for n in range(self.outShape[0]):
             for c in range(self.outShape[1]):
                 for i in range(self.outShape[2]):

@@ -21,15 +21,15 @@ class LeakyReLU(BaseLayer):
 
     def calcGradient(self):
         inputVector = self.output.flatten()
+        inputGradient = np.zeros((self.outSize,), dtype=Config["Dtype"])
         gradient_0 = np.where(inputVector>self.threshold)
         gradient_k = np.where(inputVector<0)
         gradient_1 = np.where((inputVector>0) & (inputVector<self.threshold))
         inputVector[gradient_0] = 0
         inputVector[gradient_k] = self.k
         inputVector[gradient_1] = 1
-        thisInputGradient = np.diag(inputVector)
-        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
-        self.inputGradients[self.inNodes[0].name] = inputGradient
+        inputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).flatten() * inputVector
+        self.inputGradients[self.inNodes[0].name] = inputGradient.reshape((1, -1))
 
     def forward(self, feedInput):
         outputTensor = self.inNodes[0].output
