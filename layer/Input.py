@@ -20,8 +20,7 @@ class Input(BaseLayer):
             self.forward({})
 
     def calcGradient(self):
-        thisInputGradient = np.diag(np.ones((self.outSize,), dtype=Dtype))
-        inputGradient = reduce(np.add, [np.dot(outNode.inputGradients[self.name], thisInputGradient) for outNode in self.outNodes])
+        inputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes])
         self.inputGradients[""] = inputGradient
 
     def forward(self, feedInput):
