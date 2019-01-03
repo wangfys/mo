@@ -32,5 +32,5 @@ class Mean(BaseLayer):
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output, dtype=Dtype)
+        inputTensor = self.inNodes[0].output
         self.output = np.mean(inputTensor, axis=self.axis).reshape(self.outShape)

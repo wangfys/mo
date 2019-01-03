@@ -32,5 +32,5 @@ class LeakyReLU(BaseLayer):
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):
-        outputTensor = np.array(self.inNodes[0].output, dtype=Dtype)
+        outputTensor = self.inNodes[0].output
         self.output = np.minimum(np.maximum(outputTensor, self.k * outputTensor), self.threshold)

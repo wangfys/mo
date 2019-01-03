@@ -51,7 +51,7 @@ class Dense(BaseLayer):
         self.paramGradients["b"] = bGradient
 
     def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output, dtype=Dtype)
+        inputTensor = self.inNodes[0].output
         outputTensor = np.zeros(self.outShape, dtype=Dtype)
         for i in range(self.inShapes[0][0]):
             outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b

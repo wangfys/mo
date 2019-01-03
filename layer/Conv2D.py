@@ -62,7 +62,7 @@ class Conv2D(BaseLayer):
         self.paramGradients["b"] = bGradient
 
     def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output, dtype=Dtype)
+        inputTensor = self.inNodes[0].output
         outputTensor = np.zeros(self.outShape, dtype=Dtype)
         for n in range(self.outShape[0]):
             for c in range(self.outShape[1]):

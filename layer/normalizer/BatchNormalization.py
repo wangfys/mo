@@ -61,7 +61,7 @@ class BatchNormalization(BaseLayer):
         self.paramGradients["shift"] = shiftGradient
 
     def forward(self, feedInput):
-        inputTensor = np.array(self.inNodes[0].output, dtype=Dtype)
+        inputTensor = self.inNodes[0].output
         if self.isTrain:
             mean = np.mean(self.inNodes[0].output)
             variance = np.var(self.inNodes[0].output)
