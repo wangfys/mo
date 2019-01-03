@@ -23,7 +23,7 @@ class LeakyReLU(BaseLayer):
         inputVector = self.output.flatten()
         gradient_0 = np.where(inputVector>self.threshold)
         gradient_k = np.where(inputVector<0)
-        gradient_1 = np.where(inputVector>0 and inputVector<self.threshold)
+        gradient_1 = np.where((inputVector>0) & (inputVector<self.threshold))
         inputVector[gradient_0] = 0
         inputVector[gradient_k] = self.k
         inputVector[gradient_1] = 1
