@@ -4,6 +4,23 @@ from .Base import BaseLayer
 from .. import initializer
 from ..globalvar import *
 
+def img2row(inputTensor, layer):
+    rows = np.zeros((layer.outShape[0]*layer.outShape[2]*layer.outShape[3], layer.inShapes[0][1]*layer.kernelSize[1]*layer.kernelSize[2]), dtype=Dtype)
+    count = -1
+    for n in range(layer.outShape[0]):
+        for h in range(layer.outShape[2]):
+            for w in range(layer.outShape[3]):
+                count += 1
+                rows[count] = inputTensor[n, :, h:h+layer.kernelSize[1], w:w+layer.kernelSize[2]].flatten()
+    return rows
+
+def row2img(rowTensor, layer, calcB=False):
+    result = rowTensor.reshape((layer.outShape[0], layer.outShape[2], layer.outShape[3], layer.outShape[1]))
+    if calcB:
+        for n in range(layer.outShape[0]):
+            result[n] += layer.b
+    return result.transpose((0, 3, 1, 2))
+
 class Conv2D(BaseLayer):
     """
     This is the 2D convolution layer.
@@ -62,14 +79,10 @@ class Conv2D(BaseLayer):
         self.paramGradients["b"] = bGradient
 
     def forward(self, feedInput):
-        inputTensor = self.inNodes[0].output
-        outputTensor = np.zeros(self.outShape, dtype=Dtype)
-        for n in range(self.outShape[0]):
-            for c in range(self.outShape[1]):
-                for h in range(self.outShape[2]):
-                    for w in range(self.outShape[3]):
-                        outputTensor[n, c, h, w] = np.sum(inputTensor[n, :, h:h+self.kernelSize[1], w:w+self.kernelSize[2]] * self.K[c, :]) + self.b[c]
-        self.output = outputTensor
+        self.rowTensor = img2row(self.inNodes[0].output, self)
+        self.colKernel = self.K.reshape((self.outShape[1], -1)).T
+        outputTensor = np.dot(self.rowTensor, self.colKernel)
+        self.output = row2img(outputTensor, self, True)
 
     def init(self, jsonParam=None, thisParam=None):
         if jsonParam == None:
