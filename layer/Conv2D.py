@@ -3,6 +3,7 @@ from functools import reduce
 from .Base import BaseLayer
 from .. import initializer
 from ..globalvar import *
+from ..lib import im2col_indices, col2im_indices
 
 def img2row(inputTensor, tensorShape, kernelShape):
     rows = np.zeros((tensorShape[0]*tensorShape[2]*tensorShape[3], kernelShape[1]*kernelShape[2]*kernelShape[3]), dtype=Config["Dtype"])
@@ -37,8 +38,9 @@ class Conv2D(BaseLayer):
         self.kernelSize = args["kernel"]
         self.K_init = args["K_init"] if "K_init" in args else initializer.Constant(0)
         self.b_init = args["b_init"] if "b_init" in args else initializer.Constant(0)
+        self.stride = args["stride"] if "stride" in args else 1
         self.params = ["K", "b"]
-        self.outShape = np.array((self.inShapes[0][0], self.kernelSize[0], self.inShapes[0][2]-self.kernelSize[1]+1, self.inShapes[0][3]-self.kernelSize[2]+1))
+        self.outShape = np.array((self.inShapes[0][0], self.kernelSize[0], (self.inShapes[0][2]-self.kernelSize[1])//self.stride+1, (self.inShapes[0][3]-self.kernelSize[2])//self.stride+1))
         self.outSize = np.prod(self.outShape)
         if Config["imperative"]:
             if "thisParam" in args:
@@ -53,32 +55,23 @@ class Conv2D(BaseLayer):
             self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
 
     def calcGradient(self):
-        inputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape)
-        inputGradient = np.pad(inputGradient, ((0, 0), (0, 0), (self.kernelSize[1] - 1, self.kernelSize[1] - 1), (self.kernelSize[2] - 1, self.kernelSize[2] - 1)), "constant")
-        flippedK = self.K[:,:,::-1,::-1].swapaxes(0, 1)
-        inputGradient = row2img(np.dot(img2row(inputGradient, self.inShapes[0], flippedK.shape), flippedK.reshape((flippedK.shape[0], -1)).T), self.inShapes[0]).flatten()
-        KGradient = np.zeros((self.K.size,), dtype=Config["Dtype"])
-        colTensor = self.rowTensor.T
-        colTensor = np.concatenate([colTensor for _ in range(self.outShape[1])], axis=1)
-        for i in range(np.prod(self.K.shape[1:])):
-            tmp = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), colTensor[i])
-            KGradient[i::np.prod(self.K.shape[1:])] = tmp / self.outShape[1]
-        bGradient = np.zeros((self.b.size,), dtype=Config["Dtype"])
-        for i in range(self.b.size):
-            tmp = np.zeros(self.outShape, dtype=Config["Dtype"])
-            tmp[:,i,:,:] = 1
-            bGradient[i] = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), tmp.flatten())
-        self.inputGradients[self.inNodes[0].name] = inputGradient.reshape((1, -1))
-        self.paramGradients["K"] = KGradient
-        self.paramGradients["b"] = bGradient
+        outputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape)
+        self.paramGradients["b"] = np.sum(outputGradient, axis=(0, 2, 3))
+
+        outputGradient = outputGradient.transpose((1, 2, 3, 0)).reshape((self.outShape[1], -1))
+        self.paramGradients["K"] = np.dot(outputGradient, self.X_col.T)
+
+        inputGradient_col = np.dot(self.K.reshape((self.outShape[1], -1)).T, outputGradient)
+        self.inputGradients[self.inNodes[0].name] = col2im_indices(inputGradient_col, self.inShapes[0], self.kernelSize[1], self.kernelSize[2], padding=0, stride=self.stride).flatten()
 
     def forward(self, feedInput):
-        tensorShape = self.outShape
-        kernelShape = self.K.shape
-        self.rowTensor = img2row(self.inNodes[0].output, tensorShape, kernelShape)
-        colKernel = self.K.reshape((self.outShape[1], -1)).T
-        outputTensor = np.dot(self.rowTensor, colKernel)
-        self.output = row2img(outputTensor, tensorShape, [self.b])
+        self.X_col = im2col_indices(self.inNodes[0].output, self.kernelSize[1], self.kernelSize[2], padding=0, stride=self.stride)
+        K_col = self.K.reshape((self.kernelSize[0], -1))
+        outputTensor = np.dot(K_col, self.X_col)
+        for c in range(self.kernelSize[0]):
+            outputTensor[c] += self.b[c]
+        outputTensor = outputTensor.reshape((self.outShape[1], self.outShape[2], self.outShape[3], self.outShape[0]))
+        self.output = outputTensor.transpose((3, 0, 1, 2))
 
     def init(self, jsonParam=None, thisParam=None):
         if jsonParam == None:
