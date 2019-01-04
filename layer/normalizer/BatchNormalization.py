@@ -30,48 +30,31 @@ class BatchNormalization(BaseLayer):
             self.shift.ravel()[:] = applyFunc(self.shift.flatten(), self, "shift")
 
     def calcGradient(self):
-        rowNumber = self.outSize
-        columnNumber = self.outSize
-        inputVector = self.inNodes[0].output.flatten()
-        mean = np.mean(inputVector)
-        variance = np.var(inputVector) + self.epsilon
-        sigma = np.sqrt(variance)
-        varGradient = np.zeros((self.outSize,), dtype=Config["Dtype"])
-        thisInputGradient = np.zeros((rowNumber, columnNumber), dtype=Config["Dtype"])
-        for i in range(rowNumber):
-            for j in range(columnNumber):
-                if i == j:
-                    varGradient[i] += 2 * (inputVector[j] - mean) * (self.outSize - 1) / (self.outSize ** 2)
-                else:
-                    varGradient[i] += -2 * (inputVector[j] - mean) / (self.outSize ** 2)
-        for i in range(rowNumber):
-            for j in range(columnNumber):
-                if i == j:
-                    thisInputGradient[i][j] = (self.outSize - 1) * sigma / self.outSize - (inputVector[i] - mean) * varGradient[j] / (2 * sigma)
-                else:
-                    thisInputGradient[i][j] = -sigma / self.outSize -(inputVector[i] - mean) * varGradient[j] / (2 * sigma)
-        thisInputGradient *= self.scale / variance
-        thisScaleGradient = (inputVector - mean) / sigma
-        thisShiftGradient = np.ones((self.outSize,), dtype=Config["Dtype"])
-        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
-        scaleGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisScaleGradient)
-        shiftGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisShiftGradient)
-        self.inputGradients[self.inNodes[0].name] = inputGradient
+        tmpTensor = self.inNodes[0].output - self.mean
+        std_inv = 1. / np.sqrt(self.variance + self.epsilon)
+        outGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape)
+        normGradient = outGradient * self.scale
+        varianceGradient = np.sum(normGradient * tmpTensor, axis=0) * -0.5 * std_inv ** 3
+        meanGradient = np.sum(normGradient * -std_inv, axis=0) + varianceGradient * np.mean(-2. * tmpTensor, axis=0)
+        inputGradient = (normGradient * std_inv) + (varianceGradient * 2 * tmpTensor / self.outShape[0]) + (meanGradient / self.outShape[0])
+        scaleGradient = np.sum(outGradient * self.norm)
+        shiftGradient = np.sum(outGradient)
+        self.inputGradients[self.inNodes[0].name] = inputGradient.flatten()
         self.paramGradients["scale"] = scaleGradient
         self.paramGradients["shift"] = shiftGradient
 
     def forward(self, feedInput):
         inputTensor = self.inNodes[0].output
         if self.isTrain:
-            mean = np.mean(self.inNodes[0].output)
-            variance = np.var(self.inNodes[0].output)
-            self.meanSeen = self.meanSeen * self.batchSeen + mean
-            self.varianceSeen = self.varianceSeen * self.batchSeen + variance
+            self.mean = np.mean(self.inNodes[0].output)
+            self.variance = np.var(self.inNodes[0].output)
+            self.meanSeen = self.meanSeen * self.batchSeen + self.mean
+            self.varianceSeen = self.varianceSeen * self.batchSeen + self.variance
             self.batchSeen += 1
             self.meanSeen /= self.batchSeen
             self.varianceSeen /= self.batchSeen
-            inputTensor = (inputTensor - mean) / np.sqrt(variance + self.epsilon)
-            self.output = self.scale * inputTensor + self.shift
+            self.norm = (inputTensor - self.mean) / np.sqrt(self.variance + self.epsilon)
+            self.output = self.scale * self.norm + self.shift
         else:
             mean = self.meanSeen
             variance = self.varianceSeen * (self.inShapes[0][0] - 1) / self.inShapes[0][0]
