@@ -18,7 +18,7 @@ class Dropout(BaseLayer):
             self.forward({})
 
     def calcGradient(self):
-        self.inputGradients[self.inNodes[0].name] = self.mask.reshape((1, -1)) * reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes])
+        self.inputGradients[self.inNodes[0].name] = (self.mask.flatten() * reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).flatten()).reshape((1, -1))
 
     def forward(self, feedInput):
         if self.isTrain:
