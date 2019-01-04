@@ -35,27 +35,13 @@ class Dense(BaseLayer):
             self.b.ravel()[:] = applyFunc(self.b.flatten(), self, "b")
 
     def calcGradient(self):
-        thisInputGradient = np.zeros((self.outSize, self.inSizes[0]), dtype=Config["Dtype"])
-        thisKGradient = np.zeros((self.outSize, self.K.size), dtype=Config["Dtype"])
-        thisBGradient = np.zeros((self.outSize, self.b.size), dtype=Config["Dtype"])
-        for i in range(self.inShapes[0][0]):
-            thisInputGradient[i*self.K.shape[0]:(i+1)*self.K.shape[0], i*self.K.shape[1]:(i+1)*self.K.shape[1]] = self.K
-            thisBGradient[i*self.outShape[1]:(i+1)*self.outShape[1]] = np.diag(np.ones((self.b.size)))
-            for j in range(self.K.shape[0]):
-                thisKGradient[i*self.outShape[1]+j, j*self.K.shape[1]:(j+1)*self.K.shape[1]] = self.inNodes[0].output[i]
-        inputGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisInputGradient)
-        KGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisKGradient)
-        bGradient = np.dot(reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]), thisBGradient)
-        self.inputGradients[self.inNodes[0].name] = inputGradient
-        self.paramGradients["K"] = KGradient
-        self.paramGradients["b"] = bGradient
+        outputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape)
+        self.inputGradients[self.inNodes[0].name] = np.dot(outputGradient, self.K)
+        self.paramGradients["K"] = np.dot(self.inNodes[0].output.T, outputGradient).T
+        self.paramGradients["b"] = np.sum(outputGradient, axis=0)
 
     def forward(self, feedInput):
-        inputTensor = self.inNodes[0].output
-        outputTensor = np.zeros(self.outShape, dtype=Config["Dtype"])
-        for i in range(self.inShapes[0][0]):
-            outputTensor[i] = np.dot(self.K, inputTensor[i]) + self.b
-        self.output = outputTensor
+        self.output = np.dot(self.inNodes[0].output, self.K.T) + self.b
 
     def init(self, jsonParam=None, thisParam=None):
         if jsonParam == None:
