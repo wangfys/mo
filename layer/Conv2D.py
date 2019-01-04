@@ -5,23 +5,6 @@ from .. import initializer
 from ..globalvar import *
 from ..lib import im2col_indices, col2im_indices
 
-def img2row(inputTensor, tensorShape, kernelShape):
-    rows = np.zeros((tensorShape[0]*tensorShape[2]*tensorShape[3], kernelShape[1]*kernelShape[2]*kernelShape[3]), dtype=Config["Dtype"])
-    count = -1
-    for n in range(tensorShape[0]):
-        for h in range(tensorShape[2]):
-            for w in range(tensorShape[3]):
-                count += 1
-                rows[count] = inputTensor[n, :, h:h+kernelShape[2], w:w+kernelShape[3]].flatten()
-    return rows
-
-def row2img(rowTensor, tensorShape, calcB=[]):
-    result = rowTensor.reshape((tensorShape[0], tensorShape[2], tensorShape[3], tensorShape[1]))
-    if len(calcB) > 0:
-        for n in range(tensorShape[0]):
-            result[n] += calcB[0]
-    return result.transpose((0, 3, 1, 2))
-
 class Conv2D(BaseLayer):
     """
     This is the 2D convolution layer.
