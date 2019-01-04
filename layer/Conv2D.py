@@ -29,6 +29,7 @@ class Conv2D(BaseLayer):
         name: the name of this layer, should be unique
         input: the input of this layer
         kernel: the shape of kernel, like (output_channels, output_height, output_width), notice that output_height should be the same as output_width
+        stride: the step size of kernel, 1 by default
         K_init: the initializer of K, mo.initializer.Constant(0) by default
         b_init: the initializer of b, mo.initializer.Constant(0) by default
         fix: whether to fix the parameters during training, False by default
