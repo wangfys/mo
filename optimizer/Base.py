@@ -52,11 +52,11 @@ class BaseOptimizer():
             if Config["Perf"]:
                 import time
                 start = time.time()
-                Nodes[name].backward(np.frompyfunc(self.applyFunc, 2, 1))
+                Nodes[name].backward(self.applyFunc)
                 end = time.time()
                 print(name, "backward", end-start)
             else:
-                Nodes[name].backward(np.frompyfunc(self.applyFunc, 2, 1))
+                Nodes[name].backward(self.applyFunc)
             for inNode in Nodes[name].inNodes:
                 if not Nodes[name] in inNode.outNodes:
                     inNode.outNodes.append(Nodes[name])

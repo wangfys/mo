@@ -26,8 +26,8 @@ class BatchNormalization(BaseLayer):
 
     def applyGradientDescent(self, applyFunc):
         if not self.fix:
-            self.scale.ravel()[:] = applyFunc(self.scale.flatten(), self.paramGradients["scale"].flatten())
-            self.shift.ravel()[:] = applyFunc(self.shift.flatten(), self.paramGradients["shift"].flatten())
+            self.scale.ravel()[:] = applyFunc(self.scale.flatten(), self, "scale")
+            self.shift.ravel()[:] = applyFunc(self.shift.flatten(), self, "shift")
 
     def calcGradient(self):
         rowNumber = self.outSize

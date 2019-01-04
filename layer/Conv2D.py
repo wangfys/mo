@@ -35,8 +35,8 @@ class Conv2D(BaseLayer):
 
     def applyGradientDescent(self, applyFunc):
         if not self.fix:
-            self.K.ravel()[:] = applyFunc(self.K.flatten(), self.paramGradients["K"].flatten())
-            self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
+            self.K.ravel()[:] = applyFunc(self.K.flatten(), self, "K")
+            self.b.ravel()[:] = applyFunc(self.b.flatten(), self, "b")
 
     def calcGradient(self):
         outputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape)

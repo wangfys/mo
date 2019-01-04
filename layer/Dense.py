@@ -31,8 +31,8 @@ class Dense(BaseLayer):
 
     def applyGradientDescent(self, applyFunc):
         if not self.fix:
-            self.K.ravel()[:] = applyFunc(self.K.flatten(), self.paramGradients["K"].flatten())
-            self.b.ravel()[:] = applyFunc(self.b.flatten(), self.paramGradients["b"].flatten())
+            self.K.ravel()[:] = applyFunc(self.K.flatten(), self, "K")
+            self.b.ravel()[:] = applyFunc(self.b.flatten(), self, "b")
 
     def calcGradient(self):
         thisInputGradient = np.zeros((self.outSize, self.inSizes[0]), dtype=Config["Dtype"])
