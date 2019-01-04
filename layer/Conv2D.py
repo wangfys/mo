@@ -23,8 +23,9 @@ class Conv2D(BaseLayer):
         self.K_init = args["K_init"] if "K_init" in args else initializer.Constant(0)
         self.b_init = args["b_init"] if "b_init" in args else initializer.Constant(0)
         self.stride = args["stride"] if "stride" in args else 1
+        self.padding = args["padding"] if "padding" in args else 0
         self.params = ["K", "b"]
-        self.outShape = np.array((self.inShapes[0][0], self.kernelSize[0], (self.inShapes[0][2]-self.kernelSize[1])//self.stride+1, (self.inShapes[0][3]-self.kernelSize[2])//self.stride+1))
+        self.outShape = np.array((self.inShapes[0][0], self.kernelSize[0], (self.inShapes[0][2] - self.kernelSize[1] + 2 * self.padding) // self.stride + 1, (self.inShapes[0][3] - self.kernelSize[2] + 2 * self.padding) // self.stride + 1))
         self.outSize = np.prod(self.outShape)
         if Config["imperative"]:
             if "thisParam" in args:
@@ -46,10 +47,10 @@ class Conv2D(BaseLayer):
         self.paramGradients["K"] = np.dot(outputGradient, self.X_col.T)
 
         inputGradient_col = np.dot(self.K.reshape((self.outShape[1], -1)).T, outputGradient)
-        self.inputGradients[self.inNodes[0].name] = col2im_indices(inputGradient_col, self.inShapes[0], self.kernelSize[1], self.kernelSize[2], padding=0, stride=self.stride).flatten()
+        self.inputGradients[self.inNodes[0].name] = col2im_indices(inputGradient_col, self.inShapes[0], self.kernelSize[1], self.kernelSize[2], padding=self.padding, stride=self.stride).flatten()
 
     def forward(self, feedInput):
-        self.X_col = im2col_indices(self.inNodes[0].output, self.kernelSize[1], self.kernelSize[2], padding=0, stride=self.stride)
+        self.X_col = im2col_indices(self.inNodes[0].output, self.kernelSize[1], self.kernelSize[2], padding=self.padding, stride=self.stride)
         K_col = self.K.reshape((self.kernelSize[0], -1))
         outputTensor = np.dot(K_col, self.X_col)
         for c in range(self.kernelSize[0]):

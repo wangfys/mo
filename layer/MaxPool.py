@@ -2,6 +2,7 @@ import numpy as np
 from functools import reduce
 from .Base import BaseLayer
 from ..globalvar import *
+from ..lib import im2col_indices, col2im_indices
 
 class MaxPool(BaseLayer):
     """
@@ -12,7 +13,8 @@ class MaxPool(BaseLayer):
     def __init__(self, **args):
         BaseLayer.__init__(self, args, inputNum=1)
         self.ksize = args["ksize"]
-        self.outShape = np.array((self.inShapes[0][0], self.inShapes[0][1], self.inShapes[0][2] // self.ksize + 1, self.inShapes[0][3] // self.ksize + 1))
+        self.padding = args["padding"] if "padding" in args else 0
+        self.outShape = np.array((self.inShapes[0][0], self.inShapes[0][1], (self.inShapes[0][2] + 2 * self.padding) // self.ksize, (self.inShapes[0][3] + 2 * self.padding) // self.ksize))
         self.pad_top = (self.outShape[2] * self.ksize - self.inShapes[0][2]) // 2
         self.pad_bottom = self.outShape[2] * self.ksize - self.inShapes[0][2] - self.pad_top
         self.pad_left = (self.outShape[3] * self.ksize - self.inShapes[0][3]) // 2
@@ -22,28 +24,17 @@ class MaxPool(BaseLayer):
             self.forward({})
 
     def calcGradient(self):
-        inputGradient = np.zeros((self.inSizes[0],), dtype=Config["Dtype"])
-        inputTensorIndex = np.arange(self.inNodes[0].outSize).reshape(self.inShapes[0])
-        inputTensor = np.pad(self.inNodes[0].output, ((0, 0), (0, 0), (self.pad_top, self.pad_bottom), (self.pad_left, self.pad_right)), "constant")
-        inputTensorIndex = np.pad(inputTensorIndex, ((0, 0), (0, 0), (self.pad_top, self.pad_bottom), (self.pad_left, self.pad_right)), "constant", constant_values=-1)
-        count = -1
-        for n in range(self.outShape[0]):
-            for c in range(self.outShape[1]):
-                for i in range(self.outShape[2]):
-                    for j in range(self.outShape[3]):
-                        count += 1
-                        maxIndex = np.argmax(inputTensor[n,c,i*self.ksize:(i+1)*self.ksize,j*self.ksize:(j+1)*self.ksize])
-                        inputIndex = inputTensorIndex[n,c,i*self.ksize:(i+1)*self.ksize,j*self.ksize:(j+1)*self.ksize].flatten()[maxIndex]
-                        if inputIndex != -1:
-                            inputGradient[inputIndex] += reduce(np.add, [outNode.inputGradients[self.name][0][count] for outNode in self.outNodes])
-        self.inputGradients[self.inNodes[0].name] = inputGradient
+        inputGradientCol = np.zeros(self.colShape)
+        inputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape).transpose((2, 3, 0, 1)).ravel()
+        inputGradientCol[self.maxIndex, range(self.maxIndex.size)] = inputGradient
+        inputGradient = col2im_indices(inputGradientCol, (self.inShapes[0][0]*self.inShapes[0][1], 1, self.inShapes[0][2], self.inShapes[0][3]), self.ksize, self.ksize, padding=self.padding, stride=self.ksize)
+        self.inputGradients[self.inNodes[0].name] = inputGradient.flatten()
 
     def forward(self, feedInput):
-        inputTensor = np.pad(self.inNodes[0].output, ((0, 0),(0, 0), (self.pad_top, self.pad_bottom),(self.pad_left, self.pad_right)), "constant")
-        outputTensor = np.zeros(self.outShape, dtype=Config["Dtype"])
-        for n in range(self.outShape[0]):
-            for c in range(self.outShape[1]):
-                for i in range(self.outShape[2]):
-                    for j in range(self.outShape[3]):
-                        outputTensor[n][c][i][j] = np.max(inputTensor[n][c][i*self.ksize:(i+1)*self.ksize, j*self.ksize:(j+1)*self.ksize])
-        self.output = outputTensor
+        inputTensor = self.inNodes[0].output.reshape((self.inShapes[0][0]*self.inShapes[0][1], 1, self.inShapes[0][2], self.inShapes[0][3]))
+        inputCol = im2col_indices(inputTensor, self.ksize, self.ksize, padding=self.padding, stride=self.ksize)
+        self.colShape = inputCol.shape
+        self.maxIndex = np.argmax(inputCol, axis=0)
+        outputTensor = inputCol[self.maxIndex, range(self.maxIndex.size)]
+        outputTensor = outputTensor.reshape((self.outShape[2], self.outShape[3], self.outShape[0], self.outShape[1]))
+        self.output = outputTensor.transpose((2, 3, 0, 1))
