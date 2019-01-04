@@ -12,7 +12,7 @@ class CrossEntropy(BaseLayer):
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args, inputNum=2)
-        self.epsilon = args["epsilon"] if "epsilon" in args else 1e-10
+        self.epsilon = args["epsilon"] if "epsilon" in args else 1e-5
         if (self.inShapes[0] != self.inShapes[1]).any():
             raise Exception("the shape of the two inputs of '%s' are not equivalent" % self.name)
         self.outShape = np.array([1])

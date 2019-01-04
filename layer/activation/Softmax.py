@@ -31,7 +31,7 @@ class Softmax(BaseLayer):
 
     def forward(self, feedInput):
         tmpTensor = self.inNodes[0].output
-        tmpTensor = np.exp(tmpTensor)
         for i in range(self.outShape[0]):
+            tmpTensor[i] = np.exp(tmpTensor[i] - np.max(tmpTensor[i]))
             tmpTensor[i] = tmpTensor[i] / np.sum(tmpTensor[i])
         self.output = tmpTensor

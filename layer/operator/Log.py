@@ -11,7 +11,7 @@ class Log(BaseLayer):
     """
     def __init__(self, **args):
         BaseLayer.__init__(self, args, inputNum=1)
-        self.epsilon = args["epsilon"] if "epsilon" in args else 1e-10
+        self.epsilon = args["epsilon"] if "epsilon" in args else 1e-5
         self.outShape = np.array(self.inShapes[0])
         self.outSize = np.prod(self.outShape)
         if Config["imperative"]:
