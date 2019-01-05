@@ -9,7 +9,7 @@ Mo provides `mo.initializer.Constant`, `mo.initializer.NormalRandom`, `mo.initia
 
 ### 2.2 Layer
 
-For any layers in `mo.layers`, `mo.activation`, `mo.loss`, `mo.normalizer` and any operators, you can use `execute(feedInput)` method to execute the compute graph.
+For any layers in `mo.layers`, `mo.activation`, `mo.loss`, `mo.normalizer`, `mo.regularization` and any operators, you can use `execute(feedInput)` method to execute the compute graph.
 
 #### 2.2.0 Basic
 
@@ -27,13 +27,17 @@ Mo provides `mo.loss.CrossEntropy` for loss layers.
 
 Mo provides `mo.normalizer.BatchNormalization` for normalize layers. Use `isTrain=True` when training.
 
-#### 2.2.4 Operator
+#### 2.2.4 Regularization
+
+Mo provides `mo.regularization.L2` for regularize.
+
+#### 2.2.5 Operator
 
 Mo provides `mo.Add`, `mo.Constant`, `mo.Log`, `mo.Mean`, `mo.Multiply`, `mo.Negative`, `mo.Sum` for operators. They act like the corresponding methods in `numpy`. `+`, `-` and `*` have been overloaded so you can use them directly instead of using `mo.Add`, `mo.Negative`, `mo.Multiply`.
 
 ### 2.3 Optimizer
 
-Mo provides `mo.optimizers.GradientDescent` optimizer. You can use `minimize()` method to back propagate the related part of the compute graph.
+Mo provides `mo.optimizer.Adam`, `mo.optimizers.GradientDescent`, `mo.optimizer.RMSProp` for optimize. You can use `minimize()` method to back propagate the related part of the compute graph.
 
 ## 3. Example Code
 If you want to use the "symbolic" style, here is the example.
