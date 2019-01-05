@@ -16,6 +16,6 @@ class RMSProp(BaseOptimizer):
             self.gradientMemory[layer.name] = {}
         gradient = layer.paramGradients[paraName].flatten()
         if not paraName in self.gradientMemory[layer.name]:
-            self.gradientMemory[layer.name][paraName] = np.zeros_like(gradient)
+            self.gradientMemory[layer.name][paraName] = np.zeros(gradient.shape, dtype=Config["Dtype"])
         self.gradientMemory[layer.name][paraName] = self.gamma * self.gradientMemory[layer.name][paraName] + (1 - self.gamma) * gradient ** 2
         return param - self.learning_rate * gradient / (np.sqrt(self.gradientMemory[layer.name][paraName]) + self.epsilon)

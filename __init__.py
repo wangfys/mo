@@ -4,5 +4,6 @@ from .layer import activation
 from .layer import loss
 from .layer import normalizer
 from .layer.operator import *
+from .layer import regularization
 from . import optimizer
 from .globalvar import *

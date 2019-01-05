@@ -16,8 +16,8 @@ class BatchNormalization(BaseLayer):
         self.outShape = np.array(self.inShapes[0])
         self.outSize = np.prod(self.outShape)
         self.params = ["scale", "shift", "batchSeen", "meanSeen", "varianceSeen"]
-        self.scale = np.array([1], dtype=Config["Dtype"])
-        self.shift = np.array([0], dtype=Config["Dtype"])
+        self.scale = np.array([1.], dtype=Config["Dtype"])
+        self.shift = np.array([0.], dtype=Config["Dtype"])
         self.batchSeen = np.array([0])
         self.meanSeen = np.array([0], dtype=Config["Dtype"])
         self.varianceSeen = np.array([0], dtype=Config["Dtype"])
@@ -40,8 +40,8 @@ class BatchNormalization(BaseLayer):
         scaleGradient = np.sum(outGradient * self.norm)
         shiftGradient = np.sum(outGradient)
         self.inputGradients[self.inNodes[0].name] = inputGradient.flatten()
-        self.paramGradients["scale"] = scaleGradient
-        self.paramGradients["shift"] = shiftGradient
+        self.paramGradients["scale"] += scaleGradient.flatten()
+        self.paramGradients["shift"] += shiftGradient.flatten()
 
     def forward(self, feedInput):
         inputTensor = self.inNodes[0].output

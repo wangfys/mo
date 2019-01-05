@@ -24,7 +24,7 @@ class MaxPool(BaseLayer):
             self.forward({})
 
     def calcGradient(self):
-        inputGradientCol = np.zeros(self.colShape)
+        inputGradientCol = np.zeros(self.colShape, dtype=Config["Dtype"])
         inputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape).transpose((2, 3, 0, 1)).ravel()
         inputGradientCol[self.maxIndex, range(self.maxIndex.size)] = inputGradient
         inputGradient = col2im_indices(inputGradientCol, (self.inShapes[0][0]*self.inShapes[0][1], 1, self.inShapes[0][2], self.inShapes[0][3]), self.ksize, self.ksize, padding=self.padding, stride=self.ksize)

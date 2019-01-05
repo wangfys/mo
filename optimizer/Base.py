@@ -28,11 +28,16 @@ class BaseOptimizer():
     def applyFunc(self):
         pass
 
-    def calcGradients(self, feedInput=None):
-        self.target.execute(feedInput)
+    def cleanGradients(self):
         for name in self.computeSequence:
             Nodes[name].outNodes = []
             Nodes[name].inputGradients = {}
+            for param in Nodes[name].params:
+                Nodes[name].paramGradients[param] = np.zeros(Nodes[name].__dict__[param].shape, dtype=Config["Dtype"]).flatten()
+
+    def calcGradients(self, feedInput=None):
+        self.target.execute(feedInput)
+        self.cleanGradients()
         self.target.outNodes = [self]
         for i in range(len(self.computeSequence), 0, -1):
             name = self.computeSequence[i - 1]
@@ -43,9 +48,7 @@ class BaseOptimizer():
 
     def minimize(self, feedInput=None):
         self.target.execute(feedInput)
-        for name in self.computeSequence:
-            Nodes[name].outNodes = []
-            Nodes[name].inputGradients = {}
+        self.cleanGradients()
         self.target.outNodes = [self]
         for i in range(len(self.computeSequence), 0, -1):
             name = self.computeSequence[i - 1]

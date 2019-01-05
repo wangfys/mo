@@ -20,8 +20,8 @@ class Adam(BaseOptimizer):
             self.nu[layer.name] = {}
         gradient = layer.paramGradients[paraName].flatten()
         if not paraName in self.nu[layer.name]:
-            self.m[layer.name][paraName] = np.zeros_like(gradient)
-            self.nu[layer.name][paraName] = np.zeros_like(gradient)
+            self.m[layer.name][paraName] = np.zeros(gradient.shape, dtype=Config["Dtype"])
+            self.nu[layer.name][paraName] = np.zeros(gradient.shape, dtype=Config["Dtype"])
         self.m[layer.name][paraName] = self.beta1 * self.nu[layer.name][paraName] + (1 - self.beta1) * gradient
         self.nu[layer.name][paraName] = self.beta2 * self.nu[layer.name][paraName] + (1 - self.beta2) * gradient ** 2
         m_hat = self.m[layer.name][paraName] / (1 - self.beta1 ** self.t)

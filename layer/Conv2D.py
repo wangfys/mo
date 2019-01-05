@@ -41,10 +41,10 @@ class Conv2D(BaseLayer):
 
     def calcGradient(self):
         outputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape)
-        self.paramGradients["b"] = np.sum(outputGradient, axis=(0, 2, 3))
+        self.paramGradients["b"] += np.sum(outputGradient, axis=(0, 2, 3)).flatten()
 
         outputGradient = outputGradient.transpose((1, 2, 3, 0)).reshape((self.outShape[1], -1))
-        self.paramGradients["K"] = np.dot(outputGradient, self.X_col.T)
+        self.paramGradients["K"] += np.dot(outputGradient, self.X_col.T).flatten()
 
         inputGradient_col = np.dot(self.K.reshape((self.outShape[1], -1)).T, outputGradient)
         self.inputGradients[self.inNodes[0].name] = col2im_indices(inputGradient_col, self.inShapes[0], self.kernelSize[1], self.kernelSize[2], padding=self.padding, stride=self.stride).flatten()

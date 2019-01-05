@@ -37,8 +37,8 @@ class Dense(BaseLayer):
     def calcGradient(self):
         outputGradient = reduce(np.add, [outNode.inputGradients[self.name] for outNode in self.outNodes]).reshape(self.outShape)
         self.inputGradients[self.inNodes[0].name] = np.dot(outputGradient, self.K)
-        self.paramGradients["K"] = np.dot(self.inNodes[0].output.T, outputGradient).T
-        self.paramGradients["b"] = np.sum(outputGradient, axis=0)
+        self.paramGradients["K"] += np.dot(self.inNodes[0].output.T, outputGradient).T.flatten()
+        self.paramGradients["b"] += np.sum(outputGradient, axis=0).flatten()
 
     def forward(self, feedInput):
         self.output = np.dot(self.inNodes[0].output, self.K.T) + self.b
