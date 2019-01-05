@@ -15,7 +15,8 @@ class BatchNormalization(BaseLayer):
         self.epsilon = args["epsilon"] if "epsilon" in args else 1e-5
         self.outShape = np.array(self.inShapes[0])
         self.outSize = np.prod(self.outShape)
-        self.params = ["scale", "shift", "batchSeen", "meanSeen", "varianceSeen"]
+        self.params = ["scale", "shift"]
+        self.paramsForInference = ["batchSeen", "meanSeen", "varianceSeen"]
         self.scale = np.array([1.], dtype=Config["Dtype"])
         self.shift = np.array([0.], dtype=Config["Dtype"])
         self.batchSeen = np.array([0])
@@ -60,3 +61,17 @@ class BatchNormalization(BaseLayer):
             variance = self.varianceSeen * (self.inShapes[0][0] - 1) / self.inShapes[0][0]
             inputTensor = (inputTensor - mean) / np.sqrt(variance + self.epsilon)
             self.output = self.scale * inputTensor + self.shift
+
+    def init(self, jsonParam=None, thisParam=None):
+        if jsonParam != None:
+            self.scale = np.array(jsonParam[self.name]["scale"], dtype=Config["Dtype"]).reshape([1])
+            self.shift = np.array(jsonParam[self.name]["shift"], dtype=Config["Dtype"]).reshape([1])
+            self.batchSeen = np.array(jsonParam[self.name]["batchSeen"]).reshape([1])
+            self.meanSeen = np.array(jsonParam[self.name]["meanSeen"]).reshape([1])
+            self.varianceSeen = np.array(jsonParam[self.name]["varianceSeen"]).reshape([1])
+        if Config["imperative"] and thisParam != None:
+            self.scale = np.array(thisParam["scale"], dtype=Config["Dtype"]).reshape([1])
+            self.shift = np.array(thisParam["shift"], dtype=Config["Dtype"]).reshape([1])
+            self.batchSeen = np.array(thisParam["batchSeen"]).reshape([1])
+            self.meanSeen = np.array(thisParam["meanSeen"]).reshape([1])
+            self.varianceSeen = np.array(thisParam["varianceSeen"]).reshape([1])

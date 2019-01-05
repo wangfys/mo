@@ -35,6 +35,7 @@ class BaseLayer():
         self.inNodes = [inNode for inNode in args["input"]]
         self.outNodes = []
         self.params = []
+        self.paramsForInference = []
         self.inputGradients = {}
         self.paramGradients = {}
         self.inShapes = [inNode.outShape for inNode in self.inNodes]
@@ -112,6 +113,8 @@ class BaseLayer():
             if len(Nodes[name].params) != 0:
                 params = {}
                 for param in Nodes[name].params:
+                    params[param] = Nodes[name].__dict__[param].tolist()
+                for param in Nodes[name].paramsForInference:
                     params[param] = Nodes[name].__dict__[param].tolist()
                 result[name] = params
             else:
