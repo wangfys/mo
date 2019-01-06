@@ -1,7 +1,7 @@
 import numpy as np
 from functools import reduce
-from .Base import BaseLayer
-from ..globalvar import *
+from ..Base import BaseLayer
+from ...globalvar import *
 
 class Dropout(BaseLayer):
     """
