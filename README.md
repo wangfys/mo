@@ -5,7 +5,7 @@ Mo is a toy framework for the project of my Machine Learning course. According t
 
 ### 2.1 Initializer
 
-Mo provides `mo.initializer.Constant`, `mo.initializer.NormalRandom`, `mo.initializer.UniformRandom` initializers.
+Mo provides `mo.initializer.Constant`, `mo.initializer.NormalRandom`, `mo.initializer.TruncatedNormalRandom`, `mo.initializer.UniformRandom` initializers.
 
 ### 2.2 Layer
 
@@ -17,27 +17,23 @@ Mo provides `mo.layers.Conv2D`, `mo.layers.Dense`, `mo.layers.Flatten`, `mo.laye
 
 #### 2.2.1 Activation
 
-Mo provides `mo.activation.LeakyReLU`, `mo.activation.Sigmoid`, `mo.activation.Softmax` for activation layers.
+Mo provides `mo.activation.LeakyReLU`, `mo.activation.Sigmoid`, `mo.activation.Softmax` for activation.
 
 #### 2.2.2 Loss
 
-Mo provides `mo.loss.CrossEntropy` for loss layers.
+Mo provides `mo.loss.CrossEntropy` for defining loss.
 
-#### 2.2.3 Normalizer
-
-Mo provides `mo.normalizer.BatchNormalization` for normalize layers. Use `isTrain=True` when training.
-
-#### 2.2.4 Regularization
-
-Mo provides `mo.regularization.L2` for regularize.
-
-#### 2.2.5 Operator
+#### 2.2.3 Operator
 
 Mo provides `mo.Add`, `mo.Constant`, `mo.Log`, `mo.Mean`, `mo.Multiply`, `mo.Negative`, `mo.Sum` for operators. They act like the corresponding methods in `numpy`. `+`, `-` and `*` have been overloaded so you can use them directly instead of using `mo.Add`, `mo.Negative`, `mo.Multiply`.
 
+#### 2.2.4 Regularize
+
+Mo provides `mo.regularize.BatchNormalization`, `mo.regularize.Dropout`, `mo.regularize.InvertedDropout`, `mo.regularize.L1`, `mo.regularize.L2` for regularizing. Use `isTrain=True` in `BatchNormalization`, `Dropout`, `InvertedDropout` when training. Notice that `InvertedDropout` acts the same with `tf.nn.dropout` in `TensorFlow` instead of `Dropout`.
+
 ### 2.3 Optimizer
 
-Mo provides `mo.optimizer.Adam`, `mo.optimizers.GradientDescent`, `mo.optimizer.RMSProp` for optimize. You can use `minimize()` method to back propagate the related part of the compute graph.
+Mo provides `mo.optimizer.Adam`, `mo.optimizers.GradientDescent`, `mo.optimizer.Momentum`, `mo.optimizer.RMSProp` for optimize. You can use `minimize(feedInput)` method to back propagate the related part of the compute graph. You can set `AMSGrad=True` when using `Adam`.
 
 ## 3. Example Code
 If you want to use the "symbolic" style, here is the example.
