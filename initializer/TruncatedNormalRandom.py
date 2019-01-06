@@ -2,7 +2,7 @@ import scipy.stats
 from .Base import BaseInitializer
 from ..globalvar import *
 
-class TrancatedNormalRandom(BaseInitializer):
+class TruncatedNormalRandom(BaseInitializer):
     """
     This is the trancated normal random initializer.
     Here are the explanation of args:
