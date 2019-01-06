@@ -30,7 +30,7 @@ class Softmax(BaseLayer):
         self.inputGradients[self.inNodes[0].name] = inputGradient
 
     def forward(self, feedInput):
-        tmpTensor = self.inNodes[0].output
+        tmpTensor = self.inNodes[0].output.copy()
         for i in range(self.outShape[0]):
             tmpTensor[i] = np.exp(tmpTensor[i] - np.max(tmpTensor[i]))
             tmpTensor[i] = tmpTensor[i] / np.sum(tmpTensor[i])
