@@ -23,7 +23,7 @@ class Adam(BaseOptimizer):
 
     def applyFunc(self, param, layer, paraName):
         gradient = layer.paramGradients[paraName].flatten()
-        self.m[layer.name][paraName] = self.beta1 * self.v[layer.name][paraName] + (1 - self.beta1) * gradient
+        self.m[layer.name][paraName] = self.beta1 * self.m[layer.name][paraName] + (1 - self.beta1) * gradient
         tmpv = self.v[layer.name][paraName]
         self.v[layer.name][paraName] = self.beta2 * self.v[layer.name][paraName] + (1 - self.beta2) * gradient ** 2
         learning_rate = self.learning_rate * np.sqrt(1 - self.beta2 ** self.t) / (1 - self.beta1 ** self.t)
