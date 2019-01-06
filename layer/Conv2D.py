@@ -27,6 +27,8 @@ class Conv2D(BaseLayer):
         self.params = ["K", "b"]
         self.outShape = np.array((self.inShapes[0][0], self.kernelSize[0], (self.inShapes[0][2] - self.kernelSize[1] + 2 * self.padding) // self.stride + 1, (self.inShapes[0][3] - self.kernelSize[2] + 2 * self.padding) // self.stride + 1))
         self.outSize = np.prod(self.outShape)
+        self.K = np.zeros((self.kernelSize[0], self.inShapes[0][1], self.kernelSize[1], self.kernelSize[2]), dtype=Config["Dtype"])
+        self.b = np.zeros((self.kernelSize[0],), dtype=Config["Dtype"])
         if Config["imperative"]:
             if "thisParam" in args:
                 self.init(thisParam=args["thisParam"])

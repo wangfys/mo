@@ -22,6 +22,8 @@ class Dense(BaseLayer):
         self.params = ["K", "b"]
         self.outShape = np.array((self.inShapes[0][0], args["unitNum"]))
         self.outSize = np.prod(self.outShape)
+        self.K = np.zeros((self.outShape[1], self.inShapes[0][1]),dtype=Config["Dtype"])
+        self.b = np.zeros((self.outShape[1],), dtype=Config["Dtype"])
         if Config["imperative"]:
             if "thisParam" in args:
                 self.init(thisParam=args["thisParam"])
